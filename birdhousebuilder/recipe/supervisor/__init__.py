@@ -3,37 +3,21 @@
 
 """Recipe conda"""
 
-def split_args(args):
-    if args is None:
-        return []
-    
-    all_args = []
-    args = args.strip()
-    if args:
-        lines = args.split('\n')
-        lines = [l.strip() for l in lines]
-        for line in lines:
-            arg_list = line.split(' ')
-            arg_list = [arg.strip() for arg in arg_list]
-            all_args.extend(arg_list)
-    return all_args
+from mako.template import Template
 
-def install_pkgs(home, pkgs, channels):
-    from subprocess import check_call
-    import os
-    
-    pkg_list = split_args(pkgs)
-    if len(pkg_list) > 0:
-        cmd = [os.path.join(home, 'bin/conda')]
-        cmd.append('install')
-        cmd.append('--yes')
-        channel_list = split_args(channels)
-        for channel in channel_list:
-            cmd.append('-c')
-            cmd.append(channel)
-        cmd.extend(pkg_list)
-        check_call(cmd)
-        
+mytemplate = Template(
+"""
+[program:${program}]
+command=${command}
+directory=${directory}
+priority=${priority}
+autostart=true
+autorestart=true
+redirect_stderr=true
+environment=${environment}
+"""
+)
+
 class Supervisor(object):
     """This recipe is used by zc.buildout"""
 
@@ -42,26 +26,31 @@ class Supervisor(object):
         b_options = buildout['buildout']
         self.anaconda_home = b_options.get('anaconda-home', '/opt/anaconda')
         self.conda_channels = b_options.get('conda-channels')
-        self.on_install = options.query_bool('on_install', default='false')
-        self.on_update = options.query_bool('on_update', default='false')
+
+        self.program = options.get('program', name)
+        self.command = options.get('command')
+        self.directory =  options.get('directory', '${buildout:anaconda-home}/bin')
+        self.priority = options.get('priority', '10')
+        self.environment = options.get('environment', 'PATH="${buildout:anaconda-home}/bin",LD_LIBRARY_PATH="${buildout:anaconda-home}/lib"')
 
     def install(self):
-        """installer"""
-        if self.on_install:
-            self.execute()
+        self.execute()
         return tuple()
 
     def update(self):
-        """updater"""
-        if self.on_update:
-            self.execute()
+        self.execute()
         return tuple()
 
     def execute(self):
         """run the commands
         """
-        pkgs = self.options.get('pkgs', '')
-        install_pkgs(self.anaconda_home, pkgs, self.conda_channels) 
+        content = mytemplate.render(
+            program=self.program,
+            command=self.command,
+            directory=self.directory,
+            priority=self.priority,
+            environment=self.environment)
+        return content
 
 def uninstall(name, options):
     pass
