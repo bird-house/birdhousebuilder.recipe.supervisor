@@ -6,7 +6,37 @@
 import os
 from mako.template import Template
 
-mytemplate = Template(
+templ_config = Template(
+"""
+[unix_http_server]
+file=${prefix}/var/run/supervisor.sock
+
+[inet_http_server]
+port = ${host}:${port}
+
+[supervisord]
+childlogdir=${prefix}/var/log/supervisor
+logfile=${prefix}/var/log/supervisor/supervisord.log
+pidfile=${prefix}/var/run/supervisord.pid
+logfile_maxbytes=50MB
+logfile_backups=10
+loglevel=info
+nodaemon=false
+minfds=1024
+minprocs=200
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl=unix:///${prefix}/var/run/supervisor.sock
+
+[include]
+files = conf.d/*.conf
+"""
+)
+
+templ_program = Template(
 """
 [program:${program}]
 command=${command}
@@ -30,6 +60,9 @@ class Supervisor(object):
         lib_path = os.path.join(self.anaconda_home, 'lib')
         self.conda_channels = b_options.get('conda-channels')
 
+        self.host = b_options.get('supervisor-host', 'localhost')
+        self.port = b_options.get('supervisor-port', '9001')
+        
         self.program = options.get('program', name)
         self.command = options.get('command')
         self.directory =  options.get('directory', bin_path)
@@ -38,10 +71,40 @@ class Supervisor(object):
                                        'PATH="%s",LD_LIBRARY_PATH="%s"' % (bin_path, lib_path))
 
     def install(self):
+        installed = []
+        installed += self.install_config()
+        installed += self.install_program()
+        return installed
+        
+    def install_config(self):
         """
-        install supervisor config file from template
+        install supervisor main config file
         """
-        result = mytemplate.render(
+        result = templ_config.render(
+            prefix=self.anaconda_home,
+            host=self.host,
+            port=self.port)
+
+        output = os.path.join(self.anaconda_home, 'etc', 'supervisor', 'supervisord.conf')
+        try:
+            os.makedirs(os.path.dirname(output))
+        except OSError:
+            pass
+        
+        try:
+            os.remove(output)
+        except OSError:
+            pass
+
+        with open(output, 'wt') as fp:
+            fp.write(result)
+        return [output]
+        
+    def install_program(self):
+        """
+        install supervisor program config file
+        """
+        result = templ_program.render(
             program=self.program,
             command=self.command,
             directory=self.directory,
@@ -61,7 +124,7 @@ class Supervisor(object):
 
         with open(output, 'wt') as fp:
             fp.write(result)
-        return self.options.created(output)
+        return [output]
 
     def update(self):
         return self.install()
