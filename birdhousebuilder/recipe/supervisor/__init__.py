@@ -49,6 +49,8 @@ environment=${environment}
 """
 )
 
+templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
+
 class Supervisor(object):
     """This recipe is used by zc.buildout"""
 
@@ -74,6 +76,7 @@ class Supervisor(object):
         installed = []
         installed += self.install_config()
         installed += self.install_program()
+        installed += self.install_start_stop()
         return installed
         
     def install_config(self):
@@ -112,6 +115,24 @@ class Supervisor(object):
             environment=self.environment)
 
         output = os.path.join(self.anaconda_home, 'etc', 'supervisor', 'conf.d', self.program + '.conf')
+        try:
+            os.makedirs(os.path.dirname(output))
+        except OSError:
+            pass
+        
+        try:
+            os.remove(output)
+        except OSError:
+            pass
+
+        with open(output, 'wt') as fp:
+            fp.write(result)
+        return [output]
+
+    def install_start_stop(self):
+        result = templ_start_stop.render(
+            prefix=self.anaconda_home)
+        output = os.path.join(self.anaconda_home, 'etc', 'init.d', 'supervisord')
         try:
             os.makedirs(os.path.dirname(output))
         except OSError:
