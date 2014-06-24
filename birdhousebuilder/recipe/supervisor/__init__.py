@@ -3,6 +3,7 @@
 
 """Recipe conda"""
 
+import os
 from mako.template import Template
 
 mytemplate = Template(
@@ -34,23 +35,22 @@ class Supervisor(object):
         self.environment = options.get('environment', 'PATH="${buildout:anaconda-home}/bin",LD_LIBRARY_PATH="${buildout:anaconda-home}/lib"')
 
     def install(self):
-        self.execute()
-        return tuple()
-
-    def update(self):
-        self.execute()
-        return tuple()
-
-    def execute(self):
         """run the commands
         """
-        content = mytemplate.render(
+        result = mytemplate.render(
             program=self.program,
             command=self.command,
             directory=self.directory,
             priority=self.priority,
             environment=self.environment)
-        return content
+
+        output = os.path.join(self.anaconda_home, 'etc', 'supervisor', 'conf.d', self.program)
+        with open(output, 'wt') as fp:
+            fp.write(result)
+        return self.options.created()
+
+    def update(self):
+        return self.install()
 
 def uninstall(name, options):
     pass
