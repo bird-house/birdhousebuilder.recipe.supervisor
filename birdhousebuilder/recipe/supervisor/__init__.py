@@ -6,6 +6,8 @@
 import os
 from mako.template import Template
 
+import birdhousebuilder.recipe.conda
+
 templ_config = Template(
 """
 [unix_http_server]
@@ -74,10 +76,18 @@ class Supervisor(object):
 
     def install(self):
         installed = []
-        installed += self.install_config()
-        installed += self.install_program()
-        installed += self.install_start_stop()
+        installed += list(self.install_supervisor())
+        installed += list(self.install_config())
+        installed += list(self.install_program())
+        installed += list(self.install_start_stop())
         return installed
+
+    def install_supervisor(self):
+        script = birdhousebuilder.recipe.conda.Conda(
+            self.buildout,
+            self.name,
+            {'pkgs': 'supervisor'})
+        return script.install()
         
     def install_config(self):
         """
