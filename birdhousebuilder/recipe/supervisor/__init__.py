@@ -53,6 +53,13 @@ environment=${environment}
 
 templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
 
+
+def makedirs(dirname):
+    try:
+        os.makedirs(dirname)
+    except OSError:
+        pass
+
 class Supervisor(object):
     """This recipe is used by zc.buildout"""
 
@@ -99,11 +106,8 @@ class Supervisor(object):
             port=self.port)
 
         output = os.path.join(self.anaconda_home, 'etc', 'supervisor', 'supervisord.conf')
-        try:
-            os.makedirs(os.path.dirname(output))
-        except OSError:
-            pass
-        
+        makedirs(os.path.dirname(output))
+                
         try:
             os.remove(output)
         except OSError:
@@ -125,10 +129,7 @@ class Supervisor(object):
             environment=self.environment)
 
         output = os.path.join(self.anaconda_home, 'etc', 'supervisor', 'conf.d', self.program + '.conf')
-        try:
-            os.makedirs(os.path.dirname(output))
-        except OSError:
-            pass
+        makedirs(os.path.dirname(output))
         
         try:
             os.remove(output)
@@ -143,10 +144,7 @@ class Supervisor(object):
         result = templ_start_stop.render(
             prefix=self.anaconda_home)
         output = os.path.join(self.anaconda_home, 'etc', 'init.d', 'supervisord')
-        try:
-            os.makedirs(os.path.dirname(output))
-        except OSError:
-            pass
+        makedirs(os.path.dirname(output))
         
         try:
             os.remove(output)
@@ -155,6 +153,7 @@ class Supervisor(object):
 
         with open(output, 'wt') as fp:
             fp.write(result)
+            os.chmod(output, 0o755)
         return [output]
 
     def update(self):
