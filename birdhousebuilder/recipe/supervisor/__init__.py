@@ -6,7 +6,7 @@
 import os
 from mako.template import Template
 
-import birdhousebuilder.recipe.conda
+from birdhousebuilder.recipe import conda
 
 templ_config = Template(
 """
@@ -66,7 +66,7 @@ class Supervisor(object):
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
         b_options = buildout['buildout']
-        self.anaconda_home = b_options.get('anaconda-home', '/opt/anaconda')
+        self.anaconda_home = b_options.get('anaconda-home', conda.anaconda_home)
         bin_path = os.path.join(self.anaconda_home, 'bin')
         lib_path = os.path.join(self.anaconda_home, 'lib')
         self.conda_channels = b_options.get('conda-channels')
@@ -90,7 +90,7 @@ class Supervisor(object):
         return installed
 
     def install_supervisor(self):
-        script = birdhousebuilder.recipe.conda.Conda(
+        script = conda.Conda(
             self.buildout,
             self.name,
             {'pkgs': 'supervisor'})
