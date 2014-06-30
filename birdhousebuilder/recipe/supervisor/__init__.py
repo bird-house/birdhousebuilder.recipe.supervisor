@@ -72,7 +72,7 @@ class Recipe(object):
         self.directory =  options.get('directory', bin_path)
         self.priority = options.get('priority', '99')
         self.environment = options.get('environment',
-                                       'PATH="%s",LD_LIBRARY_PATH="%s"' % (bin_path, lib_path))
+                                       'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s"' % (bin_path, lib_path))
 
     def install(self):
         installed = []
