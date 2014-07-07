@@ -70,7 +70,7 @@ class Recipe(object):
         self.program = options.get('program', name)
         self.command = options.get('command')
         self.directory =  options.get('directory', bin_path)
-        self.priority = options.get('priority', '99')
+        self.priority = options.get('priority', '999')
         self.environment = options.get('environment',
                                        'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s"' % (bin_path, lib_path))
 
