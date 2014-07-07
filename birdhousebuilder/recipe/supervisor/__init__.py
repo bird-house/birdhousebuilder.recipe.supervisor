@@ -87,6 +87,7 @@ class Recipe(object):
             self.buildout,
             self.name,
             {'pkgs': 'supervisor'})
+        conda.makedirs(os.path.join(self.anaconda_home, 'var', 'run'))
         return script.install()
         
     def install_config(self):
