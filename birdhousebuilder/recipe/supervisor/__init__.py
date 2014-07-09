@@ -62,6 +62,7 @@ class Recipe(object):
         self.anaconda_home = b_options.get('anaconda-home', conda.anaconda_home())
         bin_path = os.path.join(self.anaconda_home, 'bin')
         lib_path = os.path.join(self.anaconda_home, 'lib')
+        self.tmp_path = os.path.join(self.anaconda_home, 'var', 'tmp')
         self.conda_channels = b_options.get('conda-channels')
 
         self.host = b_options.get('supervisor-host', 'localhost')
@@ -71,8 +72,9 @@ class Recipe(object):
         self.command = options.get('command')
         self.directory =  options.get('directory', bin_path)
         self.priority = options.get('priority', '999')
-        self.environment = options.get('environment',
-                                       'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s"' % (bin_path, lib_path))
+        self.environment = options.get(
+            'environment',
+            'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s",PYTHON_EGG_CACHE="%s"' % (bin_path, lib_path, self.tmp_path))
 
     def install(self):
         installed = []
@@ -88,6 +90,7 @@ class Recipe(object):
             self.name,
             {'pkgs': 'supervisor'})
         conda.makedirs(os.path.join(self.anaconda_home, 'var', 'run'))
+        conda.makedirs(os.path.join(self.tmp_path))
         return script.install()
         
     def install_config(self):
