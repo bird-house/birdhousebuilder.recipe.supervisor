@@ -35,7 +35,7 @@ check_service() {
         PID=`cat $PIDFILE`
         ps -p $PID >/dev/null 2>&1
         if [ "$?" = 0 ]; then
-            echo "supervisord running"
+            echo "supervisord running: $PID"
             return 0
         else
             echo "pidfile exists ($PID), but supervisord not running."
