@@ -59,7 +59,7 @@ class Recipe(object):
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
         b_options = buildout['buildout']
-        self.anaconda_home = b_options.get('anaconda-home', conda.anaconda_home)
+        self.anaconda_home = b_options.get('anaconda-home', conda.anaconda_home())
         bin_path = os.path.join(self.anaconda_home, 'bin')
         lib_path = os.path.join(self.anaconda_home, 'lib')
         self.conda_channels = b_options.get('conda-channels')
