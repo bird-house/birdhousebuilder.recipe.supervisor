@@ -6,14 +6,12 @@
 # Tested on OpenSUSE 12.1, SLES 11 SP2
 # Author: Gary Monson gary.monson@gmail.com
 #
-### BEGIN INIT INFO
 # Provides:          supervisord
 # Required-Start:    $local_fs $remote_fs $network
 # Required-Stop:     $local_fs $remote_fs $network
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 6
 # Description:       Provides supervisord service
-### END INIT INFO
 
 SUPERVISORD=${prefix}/bin/supervisord
 SUPERVISORCTL=${prefix}/bin/supervisorctl
@@ -24,8 +22,41 @@ LOGFILE=${prefix}/var/log/supervisor/supervisord.log
 # Exit if the package is not installed
 [ -x "$SUPERVISORD" ] || exit 0
 
+kill_nginx() {
+    pidof nginx >/dev/null 2>&1
+    if [ "$?" = 0 ]; then
+        echo "Killing nginx ..."
+        kill -9 $(pidof nginx)
+    fi
+}
+
+check_service() {
+    if [ -f $PIDFILE ]; then
+        PID=`cat $PIDFILE`
+        ps -p $PID >/dev/null 2>&1
+        if [ "$?" = 0 ]; then
+            echo "supervisord running"
+            return 0
+        else
+            echo "pidfile exists ($PID), but supervisord not running."
+            return 2
+        fi
+    else
+        echo "supervisord not running"
+        return 1
+    fi
+}
+
+
 start() {
-    echo -n "Starting supervisord: "
+    echo "Starting supervisord:"
+
+    check_service >/dev/null
+    if [ "$?" = 2 ]; then
+        echo "Removing stale pidfile $PIDFILE."
+        rm $PIDFILE
+    fi
+
     if [ -f $PIDFILE ]; then
         PID=`cat $PIDFILE`
         echo supervisord already running: $PID
@@ -46,9 +77,16 @@ stop() {
     for sleep in  2 2 2 2 4 4 4 4 8 8 8 8 last; do
         if [ ! -e $PIDFILE ] ; then
             echo "Supervisord exited as expected in under $total_sleep seconds"
+            kill_nginx
             break
         else
-            if [[ $sleep -eq "last" ]] ; then
+            check_service >/dev/null
+            if [ "$?" = 2 ]; then
+                echo "Supervisord not running. Removing pidfile $PIDFILE."
+                rm $PIDFILE
+                kill_nginx
+                return 2
+            elif [[ $sleep -eq "last" ]] ; then
                 echo "Supervisord still working on shutting down. We've waited roughly 60 seconds, we'll let it do its thing from here"
                 return 1
             else
@@ -63,20 +101,8 @@ stop() {
 }
 
 status() {
-    if [ -f $PIDFILE ]; then
-        PID=`cat $PIDFILE`
-        ps -p $PID >/dev/null 2>&1
-        if [ "$?" = 0 ]; then
-            echo "supervisord running"
-            exit 0
-        else
-            echo "pidfile exists ($PID), but supervisord not running"
-            exit 2
-        fi
-    else
-        echo "supervisord not running"
-        exit 1
-    fi
+    check_service
+    exit $?
 }
 
 case "$1" in
