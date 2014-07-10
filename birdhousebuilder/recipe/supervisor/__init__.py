@@ -44,8 +44,8 @@ templ_program = Template(
 command=${command}
 directory=${directory}
 priority=${priority}
-autostart=true
-autorestart=true
+autostart=${autostart}
+autorestart=${autorestart}
 redirect_stderr=true
 environment=${environment}
 """
@@ -72,6 +72,8 @@ class Recipe(object):
         self.command = options.get('command')
         self.directory =  options.get('directory', bin_path)
         self.priority = options.get('priority', '999')
+        self.autostart = options.get('autostart', 'true')
+        self.autorestart = options.get('autorestart', 'false')
         self.environment = options.get(
             'environment',
             'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s",PYTHON_EGG_CACHE="%s"' % (bin_path, lib_path, self.tmp_path))
@@ -123,6 +125,8 @@ class Recipe(object):
             command=self.command,
             directory=self.directory,
             priority=self.priority,
+            autostart=self.autostart,
+            autorestart=self.autorestart,
             environment=self.environment)
 
         output = os.path.join(self.anaconda_home, 'etc', 'supervisor', 'conf.d', self.program + '.conf')
