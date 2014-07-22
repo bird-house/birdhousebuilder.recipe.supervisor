@@ -14,7 +14,7 @@ templ_config = Template(
 file=${prefix}/var/run/supervisor.sock
 
 [inet_http_server]
-port = ${host}:${port}
+port = *:${port}
 
 [supervisord]
 childlogdir=${prefix}/var/log/supervisor
@@ -65,7 +65,7 @@ class Recipe(object):
         self.tmp_path = os.path.join(self.anaconda_home, 'var', 'tmp')
         self.conda_channels = b_options.get('conda-channels')
 
-        self.host = b_options.get('supervisor-host', 'localhost')
+        #self.host = b_options.get('supervisor-host', 'localhost')
         self.port = b_options.get('supervisor-port', '9001')
         
         self.program = options.get('program', name)
@@ -101,7 +101,6 @@ class Recipe(object):
         """
         result = templ_config.render(
             prefix=self.anaconda_home,
-            host=self.host,
             port=self.port)
 
         output = os.path.join(self.anaconda_home, 'etc', 'supervisor', 'supervisord.conf')
