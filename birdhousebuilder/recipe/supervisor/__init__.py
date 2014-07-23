@@ -12,15 +12,19 @@ templ_config = Template(
 """
 [unix_http_server]
 file=${prefix}/var/run/supervisor.sock
+chmod=0700 ; socket file mode (default 0700)
 
 [inet_http_server]
 port = *:${port}
+;username = admin
+;password = Admin123
 
 [supervisord]
+;user=www-data
 childlogdir=${prefix}/var/log/supervisor
 logfile=${prefix}/var/log/supervisor/supervisord.log
 pidfile=${prefix}/var/run/supervisord.pid
-logfile_maxbytes=50MB
+logfile_maxbytes=5MB
 logfile_backups=10
 loglevel=info
 nodaemon=false
