@@ -17,18 +17,9 @@ SUPERVISORD=${prefix}/bin/supervisord
 SUPERVISORCTL=${prefix}/bin/supervisorctl
 PIDFILE=${prefix}/var/run/supervisord.pid
 CONFIGFILE=${prefix}/etc/supervisor/supervisord.conf
-LOGFILE=${prefix}/var/log/supervisor/supervisord.log
 
 # Exit if the package is not installed
 [ -x "$SUPERVISORD" ] || exit 0
-
-kill_nginx() {
-    pidof nginx >/dev/null 2>&1
-    if [ "$?" = 0 ]; then
-        echo "Killing nginx ..."
-        kill -9 $(pidof nginx)
-    fi
-}
 
 check_service() {
     if [ -f $PIDFILE ]; then
@@ -47,7 +38,6 @@ check_service() {
     fi
 }
 
-
 start() {
     echo "Starting supervisord:"
 
@@ -62,8 +52,8 @@ start() {
         echo supervisord already running: $PID
         exit 2;
     else
-        mkdir -p `dirname $LOGFILE`
-        $SUPERVISORD --pidfile $PIDFILE --configuration $CONFIGFILE --logfile $LOGFILE
+        #mkdir -p `dirname $LOGFILE`
+        $SUPERVISORD --pidfile $PIDFILE --configuration $CONFIGFILE
         RETVAL=$?
         return $RETVAL
     fi
@@ -77,14 +67,12 @@ stop() {
     for sleep in  2 2 2 2 4 4 4 4 8 8 8 8 last; do
         if [ ! -e $PIDFILE ] ; then
             echo "Supervisord exited as expected in under $total_sleep seconds"
-            kill_nginx
             break
         else
             check_service >/dev/null
             if [ "$?" = 2 ]; then
                 echo "Supervisord not running. Removing pidfile $PIDFILE."
                 rm $PIDFILE
-                kill_nginx
                 return 2
             elif [[ $sleep -eq "last" ]] ; then
                 echo "Supervisord still working on shutting down. We've waited roughly 60 seconds, we'll let it do its thing from here"
