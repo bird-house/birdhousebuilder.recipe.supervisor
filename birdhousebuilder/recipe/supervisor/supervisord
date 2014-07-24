@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /etc/init.d/supervisord
+# ${prefix}/etc/init.d/supervisord
 # Handles starting and stopping supervisord.
 #
 # Tested on OpenSUSE 12.1, SLES 11 SP2
