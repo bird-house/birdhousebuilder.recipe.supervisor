@@ -21,7 +21,7 @@ Usage
 
 The recipe requires that Anaconda is already installed. It assumes that Anaconda is installed at the default location in your home directory ``~/anaconda``. Otherwise you need to set the Buildout option ``anaconda-home``.
 
-The recipe will install the ``supervisor`` package from a conda channel and deploy a supervisor configuration of a given service.
+The recipe will install the ``supervisor`` package from a conda channel and deploy a supervisor configuration of a given service. The configuration will be deployed in ``~/anaconda/etc/supervisor/conf.d/myapp.conf``. Supervisor can be started with ``~/anaconda/etc/init.d/supervisord start``.
 
 The recipe depends on ``birdhousebuilder.recipe.conda``.
 
