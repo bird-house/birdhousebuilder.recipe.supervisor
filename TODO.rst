@@ -1,6 +1,7 @@
 Todo list
 *********
 
+* maybe load supervisor from pypi instead of conda
 * run supervisor on startup
 http://supervisord.org/running.html#running-supervisord-automatically-on-startup
 * run supervisor monitor behing nginx proxy
