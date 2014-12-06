@@ -88,7 +88,7 @@ class Recipe(object):
         installed += list(self.install_config())
         installed += list(self.install_program())
         installed += list(self.install_start_stop())
-        return installed
+        return tuple()
 
     def install_supervisor(self):
         script = conda.Recipe(
@@ -161,7 +161,11 @@ class Recipe(object):
         return [output]
 
     def update(self):
-        return self.install()
+        #self.install_supervisor()
+        self.install_config()
+        self.install_program()
+        self.install_start_stop()
+        return tuple()
 
 def uninstall(name, options):
     pass
