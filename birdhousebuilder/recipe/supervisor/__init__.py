@@ -96,6 +96,7 @@ class Recipe(object):
             self.name,
             {'pkgs': 'supervisor'})
         conda.makedirs(os.path.join(self.anaconda_home, 'var', 'run'))
+        conda.makedirs(os.path.join(self.anaconda_home, 'var', 'log', 'supervisor'))
         conda.makedirs(os.path.join(self.tmp_path))
         return script.install()
         
