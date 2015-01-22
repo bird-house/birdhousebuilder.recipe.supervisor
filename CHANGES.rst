@@ -1,6 +1,11 @@
 Changes
 *******
 
+0.1.5 (2015-01-22)
+==================
+
+* bugfix: var/log/supervisor directory is now created.
+
 0.1.4 (2014-12-06)
 ==================
 
