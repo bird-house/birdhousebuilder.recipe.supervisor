@@ -1,7 +1,7 @@
 Changes
 *******
 
-0.2.0 (2014-02-24)
+0.2.0 (2015-02-24)
 ==================
 
 * installing in conda enviroment ``birdhouse``.
