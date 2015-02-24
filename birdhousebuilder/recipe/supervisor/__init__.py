@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C)2014 DKRZ GmbH
+# Copyright (C)2015 DKRZ GmbH
 
 """Recipe supervisor"""
 
@@ -58,15 +58,18 @@ environment=${environment}
 templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
 
 class Recipe(object):
-    """This recipe is used by zc.buildout"""
+    """This recipe is used by zc.buildout.
+    It installs supervisor as conda package and setups configuration."""
 
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
         b_options = buildout['buildout']
-        self.anaconda_home = b_options.get('anaconda-home', conda.anaconda_home())
-        bin_path = os.path.join(self.anaconda_home, 'bin')
-        lib_path = os.path.join(self.anaconda_home, 'lib')
-        self.tmp_path = os.path.join(self.anaconda_home, 'var', 'tmp')
+        self.prefix = self.options.get('prefix', conda.prefix())
+        self.options['prefix'] = self.prefix
+        
+        bin_path = os.path.join(self.prefix, 'bin')
+        lib_path = os.path.join(self.prefix, 'lib')
+        self.tmp_path = os.path.join(self.prefix, 'var', 'tmp')
         self.conda_channels = b_options.get('conda-channels')
 
         #self.host = b_options.get('supervisor-host', 'localhost')
@@ -95,8 +98,8 @@ class Recipe(object):
             self.buildout,
             self.name,
             {'pkgs': 'supervisor'})
-        conda.makedirs(os.path.join(self.anaconda_home, 'var', 'run'))
-        conda.makedirs(os.path.join(self.anaconda_home, 'var', 'log', 'supervisor'))
+        conda.makedirs(os.path.join(self.prefix, 'var', 'run'))
+        conda.makedirs(os.path.join(self.prefix, 'var', 'log', 'supervisor'))
         conda.makedirs(os.path.join(self.tmp_path))
         return script.install()
         
@@ -105,10 +108,10 @@ class Recipe(object):
         install supervisor main config file
         """
         result = templ_config.render(
-            prefix=self.anaconda_home,
+            prefix=self.prefix,
             port=self.port)
 
-        output = os.path.join(self.anaconda_home, 'etc', 'supervisor', 'supervisord.conf')
+        output = os.path.join(self.prefix, 'etc', 'supervisor', 'supervisord.conf')
         conda.makedirs(os.path.dirname(output))
                 
         try:
@@ -133,7 +136,7 @@ class Recipe(object):
             autorestart=self.autorestart,
             environment=self.environment)
 
-        output = os.path.join(self.anaconda_home, 'etc', 'supervisor', 'conf.d', self.program + '.conf')
+        output = os.path.join(self.prefix, 'etc', 'supervisor', 'conf.d', self.program + '.conf')
         conda.makedirs(os.path.dirname(output))
         
         try:
@@ -147,8 +150,8 @@ class Recipe(object):
 
     def install_start_stop(self):
         result = templ_start_stop.render(
-            prefix=self.anaconda_home)
-        output = os.path.join(self.anaconda_home, 'etc', 'init.d', 'supervisord')
+            prefix=self.prefix)
+        output = os.path.join(self.prefix, 'etc', 'init.d', 'supervisord')
         conda.makedirs(os.path.dirname(output))
         
         try:

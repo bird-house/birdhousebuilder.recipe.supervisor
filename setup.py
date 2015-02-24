@@ -5,7 +5,7 @@ This module contains the tool of birdhousebuilder.recipe.supervisor
 from setuptools import find_packages
 from setuptools import setup
 
-version = '0.1.5'
+version = '0.2.0'
 description = 'A Buildout recipe to install and configure supervisor for Anaconda.'
 long_description = (
     open('README.rst').read() + '\n' +
@@ -36,9 +36,8 @@ setup(name='birdhousebuilder.recipe.supervisor',
           'Topic :: Software Development :: Libraries :: Python Modules',
           'License :: OSI Approved :: BSD License',
       ],
-      keywords='buildout recipe',
-      author='Carsten Ehbrecht',
-      author_email='ehbrecht at dkrz.de',
+      keywords='buildout recipe supervisor birdhouse conda anaconda',
+      author='Birdhouse',
       url='https://github.com/bird-house/birdhousebuilder.recipe.supervisor.git',
       license='BSD',
       packages=find_packages(exclude=['ez_setup']),
