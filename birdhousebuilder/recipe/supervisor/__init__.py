@@ -70,7 +70,6 @@ class Recipe(object):
         bin_path = os.path.join(self.prefix, 'bin')
         lib_path = os.path.join(self.prefix, 'lib')
         self.tmp_path = os.path.join(self.prefix, 'var', 'tmp')
-        self.conda_channels = b_options.get('conda-channels')
 
         #self.host = b_options.get('supervisor-host', 'localhost')
         self.port = b_options.get('supervisor-port', '9001')

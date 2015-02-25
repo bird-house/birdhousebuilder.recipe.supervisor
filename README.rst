@@ -21,7 +21,7 @@ Usage
 
 The recipe requires that Anaconda is already installed. It assumes that the default Anaconda location is in your home directory ``~/anaconda``. Otherwise you need to set the ``ANACONDA_HOME`` environment variable or the Buildout option ``anaconda-home``.
 
-The recipe will install the ``supervisor`` package from a conda channel in a conda enviroment named ``birdhouse``. The location of the birdhouse environment is ``.conda/envs/birdhouse``. It deploys a supervisor configuration of a given service. The configuration will be deployed in the birdhouse enviroment ``~/.conda/envs/birdhouse/etc/supervisor/conf.d/myapp.conf``. Supervisor can be started with ``~/.conda/envs/birdhouse/etc/init.d/supervisord start``.
+The recipe will install the ``supervisor`` package from a conda channel in a conda environment named ``birdhouse``. The location of the birdhouse environment is ``.conda/envs/birdhouse``. It deploys a supervisor configuration of a given service. The configuration will be deployed in the birdhouse enviroment ``~/.conda/envs/birdhouse/etc/supervisor/conf.d/myapp.conf``. Supervisor can be started with ``~/.conda/envs/birdhouse/etc/init.d/supervisord start``.
 
 The recipe depends on ``birdhousebuilder.recipe.conda``.
 
@@ -62,7 +62,7 @@ The following example ``buildout.cfg`` installs a Supervisor configuration for `
   [buildout]
   parts = myapp
 
-  anaconda-home = /home/myself/anaconda
+  anaconda-home = /opt/anaconda
   supervisor-port = 9001
 
   [myapp]
