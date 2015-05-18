@@ -8,53 +8,8 @@ from mako.template import Template
 
 from birdhousebuilder.recipe import conda
 
-templ_config = Template(
-"""
-[unix_http_server]
-file=${prefix}/var/run/supervisor.sock
-chmod=0700 ; socket file mode (default 0700)
-
-[inet_http_server]
-port = *:${port}
-;username = admin
-;password = Admin123
-
-[supervisord]
-;user=www-data
-childlogdir=${prefix}/var/log/supervisor
-logfile=${prefix}/var/log/supervisor/supervisord.log
-pidfile=${prefix}/var/run/supervisord.pid
-logfile_maxbytes=5MB
-logfile_backups=10
-loglevel=info
-nodaemon=false
-minfds=1024
-minprocs=200
-
-[rpcinterface:supervisor]
-supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
-
-[supervisorctl]
-serverurl=unix:///${prefix}/var/run/supervisor.sock
-
-[include]
-files = conf.d/*.conf
-"""
-)
-
-templ_program = Template(
-"""
-[program:${program}]
-command=${command}
-directory=${directory}
-priority=${priority}
-autostart=${autostart}
-autorestart=${autorestart}
-redirect_stderr=true
-environment=${environment}
-"""
-)
-
+templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
+templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
 templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
 
 class Recipe(object):
@@ -73,14 +28,21 @@ class Recipe(object):
 
         #self.host = b_options.get('supervisor-host', 'localhost')
         self.port = b_options.get('supervisor-port', '9001')
-        
+
         self.program = options.get('program', name)
-        self.command = options.get('command')
-        self.directory =  options.get('directory', bin_path)
-        self.priority = options.get('priority', '999')
-        self.autostart = options.get('autostart', 'true')
-        self.autorestart = options.get('autorestart', 'false')
-        self.environment = options.get(
+        logfile = os.path.join(self.prefix, 'var', 'log', 'supervisor', self.program + ".log")
+        # set default options
+        self.options['directory'] =  self.options.get('directory', bin_path)
+        self.options['priority'] = self.options.get('priority', '999')
+        self.options['autostart'] = self.options.get('autostart', 'true')
+        self.options['autorestart'] = self.options.get('autorestart', 'false')
+        self.options['stdout_logfile'] = self.options.get('stdout_logfile', logfile)
+        self.options['stderr_logfile'] = self.options.get('stderr_logfile', logfile)
+        self.options['startsecs'] = self.options.get('startsecs', '1')
+        self.options['stopwaitsecs'] = self.options.get('stopwaitsecs', '10')
+        self.options['stopasgroup'] = self.options.get('stopasgroup', 'false')
+        self.options['killasgroup'] = self.options.get('killasgroup', 'false')
+        self.options['environment'] = self.options.get(
             'environment',
             'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s",PYTHON_EGG_CACHE="%s"' % (bin_path, lib_path, self.tmp_path))
 
@@ -126,15 +88,7 @@ class Recipe(object):
         """
         install supervisor program config file
         """
-        result = templ_program.render(
-            program=self.program,
-            command=self.command,
-            directory=self.directory,
-            priority=self.priority,
-            autostart=self.autostart,
-            autorestart=self.autorestart,
-            environment=self.environment)
-
+        result = templ_program.render(**self.options)
         output = os.path.join(self.prefix, 'etc', 'supervisor', 'conf.d', self.program + '.conf')
         conda.makedirs(os.path.dirname(output))
         

@@ -54,6 +54,30 @@ This recipe supports the following options:
 ``directory``
    The directory where the command is started.
 
+``priority``
+   The priority to start service (optional). Default is 999.
+
+``autostart``
+    Start service automatically (optional). Default is ``true``.
+
+``autorestart``
+    Restart service automatically (optional). Default is ``false``.
+
+``stdout_logfile``
+    logfile for stdout (optional). Default is ``~/.conda/envs/birdhouse/var/log/supervisor/${program}.log``
+
+``stderr_logfile``
+    logfile for stderr (optional). Default is ``~/.conda/envs/birdhouse/var/log/supervisor/${program}.log``
+
+``startsecs``
+    Seconds the service needs to be online before marked as `started` (optional). Default is 1.
+
+``stopwaitsecs``
+    Seconds to wait before killing service (optional). Default 10.
+
+``killasgroup``
+    Kill also child processes (optional). Default ``false``.
+
 Example usage
 =============
 
