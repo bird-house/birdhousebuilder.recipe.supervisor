@@ -1,6 +1,12 @@
 Changes
 *******
 
+0.2.1 (2015-05-18)
+==================
+
+* added more options for program configuration.
+* setting default logfile name for service.
+
 0.2.0 (2015-02-24)
 ==================
 
