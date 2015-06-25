@@ -1,6 +1,12 @@
 Changes
 *******
 
+0.2.2 (2015-06-25)
+==================
+
+* cleaned up templates.
+* added user and chown option.
+
 0.2.1 (2015-05-18)
 ==================
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# Copyright (C)2015 DKRZ GmbH
 
 """Recipe supervisor"""
 
@@ -27,11 +26,14 @@ class Recipe(object):
         self.tmp_path = os.path.join(self.prefix, 'var', 'tmp')
 
         #self.host = b_options.get('supervisor-host', 'localhost')
-        self.port = b_options.get('supervisor-port', '9001')
-
+        self.options['port'] = b_options.get('supervisor-port', '9001')
+       
         self.program = options.get('program', name)
         logfile = os.path.join(self.prefix, 'var', 'log', 'supervisor', self.program + ".log")
         # set default options
+        self.options['user'] = self.options.get('user', '')
+        # Usually user and chown user in supervisor are the same!
+        self.options['chown'] = self.options.get('chown', self.options['user'])
         self.options['directory'] =  self.options.get('directory', bin_path)
         self.options['priority'] = self.options.get('priority', '999')
         self.options['autostart'] = self.options.get('autostart', 'true')
@@ -39,9 +41,10 @@ class Recipe(object):
         self.options['stdout_logfile'] = self.options.get('stdout_logfile', logfile)
         self.options['stderr_logfile'] = self.options.get('stderr_logfile', logfile)
         self.options['startsecs'] = self.options.get('startsecs', '1')
+        self.options['numprocs'] = self.options.get('numprocs', '1')
         self.options['stopwaitsecs'] = self.options.get('stopwaitsecs', '10')
         self.options['stopasgroup'] = self.options.get('stopasgroup', 'false')
-        self.options['killasgroup'] = self.options.get('killasgroup', 'false')
+        self.options['killasgroup'] = self.options.get('killasgroup', 'true')
         self.options['environment'] = self.options.get(
             'environment',
             'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s",PYTHON_EGG_CACHE="%s"' % (bin_path, lib_path, self.tmp_path))
@@ -68,9 +71,7 @@ class Recipe(object):
         """
         install supervisor main config file
         """
-        result = templ_config.render(
-            prefix=self.prefix,
-            port=self.port)
+        result = templ_config.render(**self.options)
 
         output = os.path.join(self.prefix, 'etc', 'supervisor', 'supervisord.conf')
         conda.makedirs(os.path.dirname(output))
