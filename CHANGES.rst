@@ -5,6 +5,7 @@ Changes
 ==================
 
 * added ``stopsignal`` option.
+* fixed ``stopasgroup`` option.
 
 0.2.2 (2015-06-25)
 ==================
