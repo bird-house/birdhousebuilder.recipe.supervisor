@@ -45,6 +45,7 @@ class Recipe(object):
         self.options['stopwaitsecs'] = self.options.get('stopwaitsecs', '10')
         self.options['stopasgroup'] = self.options.get('stopasgroup', 'false')
         self.options['killasgroup'] = self.options.get('killasgroup', 'true')
+        self.options['stopsignal'] = self.options.get('stopsignal', 'TERM')
         self.options['environment'] = self.options.get(
             'environment',
             'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s",PYTHON_EGG_CACHE="%s"' % (bin_path, lib_path, self.tmp_path))
