@@ -78,6 +78,12 @@ This recipe supports the following options:
 ``killasgroup``
     Kill also child processes (optional). Default ``false``.
 
+
+.. note::
+
+   The ``DAEMON_OPTS`` environment variable can be used to set additional start parameters for supervisord. 
+   For example ``DAEMON_OPTS=-n`` to start supervisord in foreground.
+
 Example usage
 =============
 

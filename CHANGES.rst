@@ -1,6 +1,11 @@
 Changes
 *******
 
+0.2.5 (2015-09-21)
+==================
+
+* added DAEMON_OPTS env variable to set additional parameters when starting supervisord.
+
 0.2.4 (2015-07-15)
 ==================
 
