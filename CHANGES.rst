@@ -1,6 +1,11 @@
 Changes
 *******
 
+0.2.6 (2015-12-07)
+==================
+
+* remove supervisor config files after uninstall.
+
 0.2.5 (2015-09-21)
 ==================
 

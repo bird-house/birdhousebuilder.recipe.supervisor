@@ -50,15 +50,15 @@ class Recipe(object):
             'environment',
             'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s",PYTHON_EGG_CACHE="%s"' % (bin_path, lib_path, self.tmp_path))
 
-    def install(self):
+    def install(self, update=False):
         installed = []
-        installed += list(self.install_supervisor())
+        installed += list(self.install_supervisor(update))
         installed += list(self.install_config())
         installed += list(self.install_program())
         installed += list(self.install_start_stop())
-        return tuple()
+        return installed
 
-    def install_supervisor(self):
+    def install_supervisor(self, update):
         script = conda.Recipe(
             self.buildout,
             self.name,
@@ -66,7 +66,10 @@ class Recipe(object):
         conda.makedirs(os.path.join(self.prefix, 'var', 'run'))
         conda.makedirs(os.path.join(self.prefix, 'var', 'log', 'supervisor'))
         conda.makedirs(os.path.join(self.tmp_path))
-        return script.install()
+        if update == True:
+            return script.update()
+        else:
+            return script.install()
         
     def install_config(self):
         """
@@ -120,11 +123,7 @@ class Recipe(object):
         return [output]
 
     def update(self):
-        #self.install_supervisor()
-        self.install_config()
-        self.install_program()
-        self.install_start_stop()
-        return tuple()
+        return self.install(update=True)
 
 def uninstall(name, options):
     pass
