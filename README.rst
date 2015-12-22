@@ -30,7 +30,7 @@ Supported options
 
 This recipe supports the following options:
 
-``anaconda-home``
+**anaconda-home**
    Buildout option with the root folder of the Anaconda installation. Default: ``$HOME/anaconda``.
    The default location can also be set with the environment variable ``ANACONDA_HOME``. Example::
 
@@ -42,42 +42,60 @@ This recipe supports the following options:
    2. ``$ANACONDA_HOME``
    3. ``$HOME/anaconda``
 
-``supervisor-port``
-   Buildout option (optional) to set the supervisor port. Default is 9001 (http://localhost:9001).
+Buildout options for ``supervisord``:
 
-``program``
+**supervisor-port**
+   Buildout option to set the supervisor port. Default is 9001.
+
+**supervisor-host**
+   Buildout option to set supervisor host. Default is 127.0.0.1.
+
+**supervisor-username**
+   Buildout option to set username for http monitor access. Default: None
+
+**supervisor-password**
+   Buildout option to set password for http monitor access. Default: None
+
+**supervisor-use-monitor**
+   Buildout option wheather to enable http monitor interface. Default: true
+
+**supervisor-loglevel**
+   Buildout option for supervisor log level. Default: info
+
+Buildout part options for the program section:
+
+**program**
    The name of the supervisor service.
 
-``command``
+**command**
    The command to start the service.
 
-``directory``
+**directory**
    The directory where the command is started.
 
-``priority``
+**priority**
    The priority to start service (optional). Default is 999.
 
-``autostart``
+**autostart**
     Start service automatically (optional). Default is ``true``.
 
-``autorestart``
+**autorestart**
     Restart service automatically (optional). Default is ``false``.
 
-``stdout_logfile``
+**stdout_logfile**
     logfile for stdout (optional). Default is ``~/.conda/envs/birdhouse/var/log/supervisor/${program}.log``
 
-``stderr_logfile``
+**stderr_logfile**
     logfile for stderr (optional). Default is ``~/.conda/envs/birdhouse/var/log/supervisor/${program}.log``
 
-``startsecs``
-    Seconds the service needs to be online before marked as `started` (optional). Default is 1.
+**startsecs**
+    Seconds the service needs to be online before marked as ``started`` (optional). Default is 1.
 
-``stopwaitsecs``
+**stopwaitsecs**
     Seconds to wait before killing service (optional). Default 10.
 
-``killasgroup``
+**killasgroup**
     Kill also child processes (optional). Default ``false``.
-
 
 .. note::
 
@@ -93,7 +111,9 @@ The following example ``buildout.cfg`` installs a Supervisor configuration for `
   parts = myapp
 
   anaconda-home = /opt/anaconda
+  supervisor-host = 127.0.0.1
   supervisor-port = 9001
+  supervisor-use-monitor = true
 
   [myapp]
   recipe = birdhousebuilder.recipe.supervisor
