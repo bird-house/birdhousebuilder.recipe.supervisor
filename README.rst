@@ -102,6 +102,8 @@ Buildout part options for the program section:
    The ``DAEMON_OPTS`` environment variable can be used to set additional start parameters for supervisord. 
    For example ``DAEMON_OPTS=-n`` to start supervisord in foreground.
 
+For supervisor configuration details see the `documentation <http://supervisord.org/configuration.html>`_.
+
 Example usage
 =============
 
