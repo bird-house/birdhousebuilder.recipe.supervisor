@@ -1,6 +1,12 @@
 Changes
 *******
 
+0.2.7 (2015-12-22)
+==================
+
+* cleaned up configuration files.
+* added more supervisord options: host, port, username, password, use_monitor.
+
 0.2.6 (2015-12-07)
 ==================
 
