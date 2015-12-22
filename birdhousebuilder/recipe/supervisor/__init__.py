@@ -32,7 +32,7 @@ class Recipe(object):
         self.options['port'] = b_options.get('supervisor-port', '9001')
         self.options['username'] = b_options.get('supervisor-username', '')
         self.options['password'] = b_options.get('supervisor-password', '')
-        self.options['use_monitor'] = as_bool( b_options.get('supervisor-use-monitor', 'true') )
+        self.options['use_monitor'] = b_options.get('supervisor-use-monitor', 'true')
         self.options['chown'] = b_options.get('supervisor-chown', '')
         self.options['loglevel'] = b_options.get('supervisor-loglevel', 'info')
 
