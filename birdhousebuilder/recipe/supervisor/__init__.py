@@ -6,6 +6,7 @@ import os
 from mako.template import Template
 
 from birdhousebuilder.recipe import conda
+from birdhousebuilder.recipe.conda import as_bool
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
@@ -25,15 +26,22 @@ class Recipe(object):
         lib_path = os.path.join(self.prefix, 'lib')
         self.tmp_path = os.path.join(self.prefix, 'var', 'tmp')
 
-        #self.host = b_options.get('supervisor-host', 'localhost')
+        # buildout options used for supervisord.conf
+        
+        self.options['host'] = b_options.get('supervisor-host', '127.0.0.1')
         self.options['port'] = b_options.get('supervisor-port', '9001')
-       
-        self.program = options.get('program', name)
+        self.options['username'] = b_options.get('supervisor-username', '')
+        self.options['password'] = b_options.get('supervisor-password', '')
+        self.options['use_monitor'] = as_bool( b_options.get('supervisor-use-monitor', 'true') )
+        self.options['chown'] = b_options.get('supervisor-chown', '')
+        self.options['loglevel'] = b_options.get('supervisor-loglevel', 'info')
+
+        # options used for program config
+        
+        self.program = self.options.get('program', name)
         logfile = os.path.join(self.prefix, 'var', 'log', 'supervisor', self.program + ".log")
         # set default options
         self.options['user'] = self.options.get('user', '')
-        # Usually user and chown user in supervisor are the same!
-        self.options['chown'] = self.options.get('chown', self.options['user'])
         self.options['directory'] =  self.options.get('directory', bin_path)
         self.options['priority'] = self.options.get('priority', '999')
         self.options['autostart'] = self.options.get('autostart', 'true')
