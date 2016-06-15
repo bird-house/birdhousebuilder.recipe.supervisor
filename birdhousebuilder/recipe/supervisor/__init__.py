@@ -7,6 +7,7 @@ from mako.template import Template
 
 from birdhousebuilder.recipe import conda
 from birdhousebuilder.recipe.conda import as_bool
+from birdhousebuilder.recipe.conda import conda_envs
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
@@ -21,9 +22,11 @@ class Recipe(object):
         b_options = buildout['buildout']
         self.prefix = self.options.get('prefix', conda.prefix())
         self.options['prefix'] = self.prefix
-        
-        bin_path = os.path.join(self.prefix, 'bin')
-        lib_path = os.path.join(self.prefix, 'lib')
+        self.env = options.get('env', b_options.get('conda-env'))
+
+        env_path = conda_envs(self.prefix).get(self.env, self.prefix)
+        bin_path = os.path.join(env_path, 'bin')
+        lib_path = os.path.join(env_path, 'lib')
         self.tmp_path = os.path.join(self.prefix, 'var', 'tmp')
 
         # buildout options used for supervisord.conf
