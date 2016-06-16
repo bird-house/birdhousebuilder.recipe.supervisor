@@ -7,7 +7,7 @@ from mako.template import Template
 
 from birdhousebuilder.recipe import conda
 from birdhousebuilder.recipe.conda import as_bool
-from birdhousebuilder.recipe.conda import conda_envs
+from birdhousebuilder.recipe.conda import conda_envs, anaconda_home
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
@@ -20,13 +20,19 @@ class Recipe(object):
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
         b_options = buildout['buildout']
+
+        self.anaconda_home = b_options.get('anaconda-home', anaconda_home())
+        b_options['anaconda-home'] = self.anaconda_home
+        
         self.prefix = self.options.get('prefix', conda.prefix())
         self.options['prefix'] = self.prefix
-        self.env = options.get('env', b_options.get('conda-env'))
 
-        env_path = conda_envs(self.prefix).get(self.env, self.prefix)
-        bin_path = os.path.join(env_path, 'bin')
-        lib_path = os.path.join(env_path, 'lib')
+        self.env = options.get('env', b_options.get('conda-env'))
+        self.env_path = conda_envs(self.anaconda_home).get(self.env, self.anaconda_home)
+        self.options['env_path'] = self.env_path
+        
+        bin_path = os.path.join(self.env_path, 'bin')
+        lib_path = os.path.join(self.env_path, 'lib')
         self.tmp_path = os.path.join(self.prefix, 'var', 'tmp')
 
         # buildout options used for supervisord.conf
@@ -118,8 +124,7 @@ class Recipe(object):
         return [output]
 
     def install_start_stop(self):
-        result = templ_start_stop.render(
-            prefix=self.prefix)
+        result = templ_start_stop.render(**self.options)
         output = os.path.join(self.prefix, 'etc', 'init.d', 'supervisord')
         conda.makedirs(os.path.dirname(output))
         
