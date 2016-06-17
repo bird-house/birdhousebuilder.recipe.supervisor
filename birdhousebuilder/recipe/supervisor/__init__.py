@@ -9,10 +9,6 @@ from birdhousebuilder.recipe import conda
 from birdhousebuilder.recipe.conda import as_bool
 from birdhousebuilder.recipe.conda import conda_env_path
 
-import logging
-logging.basicConfig(format='%(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
 templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
@@ -25,7 +21,7 @@ class Recipe(object):
         self.buildout, self.name, self.options = buildout, name, options
         b_options = buildout['buildout']
 
-        self.prefix = self.options.get('prefix', conda.prefix())
+        self.prefix = b_options.get('birdhouse-home', "/opt/birdhouse")
         self.options['prefix'] = self.prefix
 
         self.env_path = conda_env_path(buildout, options)
@@ -83,10 +79,7 @@ class Recipe(object):
         conda.makedirs(os.path.join(self.prefix, 'var', 'run'))
         conda.makedirs(os.path.join(self.prefix, 'var', 'log', 'supervisor'))
         conda.makedirs(os.path.join(self.tmp_path))
-        if update == True:
-            return script.update()
-        else:
-            return script.install()
+        return script.install(update=update)
         
     def install_config(self):
         """
