@@ -15,8 +15,8 @@
 
 SUPERVISORD="${env_path}/bin/supervisord"
 SUPERVISORCTL="${env_path}/bin/supervisorctl"
-PIDFILE="${prefix}/var/run/supervisord.pid"
-CONFIGFILE="${prefix}/etc/supervisor/supervisord.conf"
+PIDFILE="${var_prefix}/run/supervisord.pid"
+CONFIGFILE="${etc_prefix}/supervisor/supervisord.conf"
 DAEMON_OPTS="--configuration $CONFIGFILE $DAEMON_OPTS"
 
 # Exit if the package is not installed

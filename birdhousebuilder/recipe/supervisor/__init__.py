@@ -21,15 +21,23 @@ class Recipe(object):
         self.buildout, self.name, self.options = buildout, name, options
         b_options = buildout['buildout']
 
-        self.prefix = b_options.get('birdhouse-home', "/opt/birdhouse")
-        self.options['prefix'] = self.prefix
+        deployment = options.get('deployment')
+        if deployment:
+            self.options['prefix'] = buildout[deployment].get('prefix')
+            self.options['etc_prefix'] = buildout[deployment].get('etc-prefix')
+            self.options['var_prefix'] = buildout[deployment].get('var-prefix')
+        else:
+            self.options['prefix'] = os.path.join(buildout['buildout']['parts-directory'], self.name)
+            self.options['etc_prefix'] = os.path.join(self.options['prefix'], 'etc')
+            self.options['var_prefix'] = os.path.join(self.options['prefix'], 'var')
+        self.prefix = self.options['prefix']
 
         self.env_path = conda_env_path(buildout, options)
         self.options['env_path'] = self.env_path
         
         bin_path = os.path.join(self.env_path, 'bin')
         lib_path = os.path.join(self.env_path, 'lib')
-        self.tmp_path = os.path.join(self.prefix, 'var', 'tmp')
+        self.tmp_path = os.path.join(self.options['var_prefix'], 'tmp')
 
         # buildout options used for supervisord.conf
         
@@ -44,7 +52,7 @@ class Recipe(object):
         # options used for program config
         
         self.program = self.options.get('program', name)
-        logfile = os.path.join(self.prefix, 'var', 'log', 'supervisor', self.program + ".log")
+        logfile = os.path.join(self.options['var_prefix'], 'log', 'supervisor', self.program + ".log")
         # set default options
         self.options['user'] = self.options.get('user', '')
         self.options['directory'] =  self.options.get('directory', bin_path)
@@ -76,8 +84,8 @@ class Recipe(object):
             self.buildout,
             self.name,
             {'pkgs': 'supervisor'})
-        conda.makedirs(os.path.join(self.prefix, 'var', 'run'))
-        conda.makedirs(os.path.join(self.prefix, 'var', 'log', 'supervisor'))
+        conda.makedirs(os.path.join(self.options['var_prefix'], 'run'))
+        conda.makedirs(os.path.join(self.options['var_prefix'], 'log', 'supervisor'))
         conda.makedirs(os.path.join(self.tmp_path))
         return script.install(update=update)
         
@@ -87,7 +95,7 @@ class Recipe(object):
         """
         result = templ_config.render(**self.options)
 
-        output = os.path.join(self.prefix, 'etc', 'supervisor', 'supervisord.conf')
+        output = os.path.join(self.options['etc_prefix'], 'supervisor', 'supervisord.conf')
         conda.makedirs(os.path.dirname(output))
                 
         try:
@@ -104,7 +112,7 @@ class Recipe(object):
         install supervisor program config file
         """
         result = templ_program.render(**self.options)
-        output = os.path.join(self.prefix, 'etc', 'supervisor', 'conf.d', self.program + '.conf')
+        output = os.path.join(self.options['etc_prefix'], 'supervisor', 'conf.d', self.program + '.conf')
         conda.makedirs(os.path.dirname(output))
         
         try:
@@ -118,7 +126,7 @@ class Recipe(object):
 
     def install_start_stop(self):
         result = templ_start_stop.render(**self.options)
-        output = os.path.join(self.prefix, 'etc', 'init.d', 'supervisord')
+        output = os.path.join(self.options['etc_prefix'], 'init.d', 'supervisord')
         conda.makedirs(os.path.dirname(output))
         
         try:
