@@ -4,6 +4,7 @@ Changes
 0.3.0 (2016-06-18)
 ==================
 
+* replaced conda.makedirs by os.makedirs.
 * using zc.recipe.deployment
 
 0.2.8 (2015-12-22)
