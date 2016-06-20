@@ -83,60 +83,50 @@ class Recipe(object):
             self.buildout,
             self.name,
             {'pkgs': 'supervisor'})
-        conda.makedirs(os.path.join(self.options['var_prefix'], 'run'))
-        conda.makedirs(os.path.join(self.options['var_prefix'], 'log', 'supervisor'))
-        conda.makedirs(os.path.join(self.tmp_path))
+        log_path = os.path.join(self.options['var_prefix'], 'log', 'supervisor')
+        if not os.path.exists(log_path):
+            os.makedirs(log_path)
+        if not os.path.exists(self.tmp_path):
+            os.makedirs(self.tmp_path)
         return script.install(update=update)
         
     def install_config(self):
         """
         install supervisor main config file
         """
-        result = templ_config.render(**self.options)
+        text = templ_config.render(**self.options)
 
-        output = os.path.join(self.options['etc_prefix'], 'supervisor', 'supervisord.conf')
-        conda.makedirs(os.path.dirname(output))
+        conf_path = os.path.join(self.options['etc_prefix'], 'supervisor', 'supervisord.conf')
+        if not os.path.exists(os.path.dirname(conf_path)):
+            os.path.makedirs(os.path.dirname(conf_path))
                 
-        try:
-            os.remove(output)
-        except OSError:
-            pass
-
-        with open(output, 'wt') as fp:
-            fp.write(result)
-        return [output]
+        with open(conf_path, 'wt') as fp:
+            fp.write(text)
+        return [conf_path]
         
     def install_program(self):
         """
         install supervisor program config file
         """
-        result = templ_program.render(**self.options)
-        output = os.path.join(self.options['etc_prefix'], 'supervisor', 'conf.d', self.program + '.conf')
-        conda.makedirs(os.path.dirname(output))
+        text = templ_program.render(**self.options)
+        conf_path = os.path.join(self.options['etc_prefix'], 'supervisor', 'conf.d', self.program + '.conf')
+        if not os.path.exists(os.path.dirname(conf_path)):
+            os.path.makedirs(os.path.dirname(conf_path))
         
-        try:
-            os.remove(output)
-        except OSError:
-            pass
-
-        with open(output, 'wt') as fp:
-            fp.write(result)
-        return [output]
+        with open(conf_path, 'wt') as fp:
+            fp.write(text)
+        return [conf_path]
 
     def install_start_stop(self):
-        result = templ_start_stop.render(**self.options)
-        output = os.path.join(self.options['etc_prefix'], 'init.d', 'supervisord')
-        conda.makedirs(os.path.dirname(output))
+        text = templ_start_stop.render(**self.options)
+        conf_path = os.path.join(self.options['etc_prefix'], 'init.d', 'supervisord')
+        if not os.path.exists(os.path.dirname(conf_path)):
+            os.path.makedirs(os.path.dirname(conf_path))
         
-        try:
-            os.remove(output)
-        except OSError:
-            pass
-
-        with open(output, 'wt') as fp:
-            fp.write(result)
-            os.chmod(output, 0o755)
-        return [output]
+        with open(conf_path, 'wt') as fp:
+            fp.write(text)
+            os.chmod(conf_path, 0o755)
+        return [conf_path]
 
     def update(self):
         return self.install(update=True)
