@@ -6,7 +6,6 @@ import os
 from mako.template import Template
 
 from birdhousebuilder.recipe import conda
-from birdhousebuilder.recipe.conda import as_bool
 from birdhousebuilder.recipe.conda import conda_env_path
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
