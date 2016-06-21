@@ -5,12 +5,18 @@
 import os
 from mako.template import Template
 
+import logging
+
+import zc.recipe.deployment
 from birdhousebuilder.recipe import conda
-from birdhousebuilder.recipe.conda import conda_env_path
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
 templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
+
+def make_dirs(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 class Recipe(object):
     """This recipe is used by zc.buildout.
@@ -20,18 +26,28 @@ class Recipe(object):
         self.buildout, self.name, self.options = buildout, name, options
         b_options = buildout['buildout']
 
-        deployment = options.get('deployment')
-        if deployment:
-            self.options['prefix'] = buildout[deployment].get('prefix')
-            self.options['etc_prefix'] = buildout[deployment].get('etc-prefix')
-            self.options['var_prefix'] = buildout[deployment].get('var-prefix')
-        else:
-            self.options['prefix'] = os.path.join(buildout['buildout']['parts-directory'], self.name)
-            self.options['etc_prefix'] = os.path.join(self.options['prefix'], 'etc')
-            self.options['var_prefix'] = os.path.join(self.options['prefix'], 'var')
+        self.name = options.get('name', name)
+        self.options['name'] = self.name
+        
+        self.logger = logging.getLogger(self.name)
+
+        self.logger.debug("options = %s", options.keys())
+
+        deployment = zc.recipe.deployment.Install(buildout, "supervisor", {
+                                                'prefix': self.options['prefix'],
+                                                'user': self.options['user'],
+                                                'etc-user': self.options['user']})
+        deployment.install()
+
+        self.options['etc_prefix'] = deployment.options['etc-prefix']
+        self.options['var_prefix'] = deployment.options['var-prefix']
+        self.options['etc-directory'] = deployment.options['etc-directory']
+        self.options['log-directory'] = deployment.options['log-directory']
         self.prefix = self.options['prefix']
 
-        self.env_path = conda_env_path(buildout, options)
+        self.logger.debug("deployment = %s, prefix = %s", deployment, self.prefix)
+
+        self.env_path = conda.conda_env_path(buildout, options)
         self.options['env_path'] = self.env_path
         
         bin_path = os.path.join(self.env_path, 'bin')
@@ -51,7 +67,7 @@ class Recipe(object):
         # options used for program config
         
         self.program = self.options.get('program', name)
-        logfile = os.path.join(self.options['var_prefix'], 'log', 'supervisor', self.program + ".log")
+        logfile = os.path.join(self.options['log-directory'], self.program + ".log")
         # set default options
         self.options['user'] = self.options.get('user', '')
         self.options['directory'] =  self.options.get('directory', bin_path)
@@ -83,11 +99,8 @@ class Recipe(object):
             self.buildout,
             self.name,
             {'pkgs': 'supervisor'})
-        log_path = os.path.join(self.options['var_prefix'], 'log', 'supervisor')
-        if not os.path.exists(log_path):
-            os.makedirs(log_path)
-        if not os.path.exists(self.tmp_path):
-            os.makedirs(self.tmp_path)
+        # make dirs
+        make_dirs(self.tmp_path)
         return script.install(update=update)
         
     def install_config(self):
@@ -96,9 +109,7 @@ class Recipe(object):
         """
         text = templ_config.render(**self.options)
 
-        conf_path = os.path.join(self.options['etc_prefix'], 'supervisor', 'supervisord.conf')
-        if not os.path.exists(os.path.dirname(conf_path)):
-            os.path.makedirs(os.path.dirname(conf_path))
+        conf_path = os.path.join(self.options['etc-directory'], 'supervisord.conf')
                 
         with open(conf_path, 'wt') as fp:
             fp.write(text)
@@ -109,9 +120,8 @@ class Recipe(object):
         install supervisor program config file
         """
         text = templ_program.render(**self.options)
-        conf_path = os.path.join(self.options['etc_prefix'], 'supervisor', 'conf.d', self.program + '.conf')
-        if not os.path.exists(os.path.dirname(conf_path)):
-            os.path.makedirs(os.path.dirname(conf_path))
+        conf_path = os.path.join(self.options['etc-directory'], 'conf.d', self.program + '.conf')
+        make_dirs( os.path.dirname(conf_path) )
         
         with open(conf_path, 'wt') as fp:
             fp.write(text)
@@ -120,8 +130,7 @@ class Recipe(object):
     def install_start_stop(self):
         text = templ_start_stop.render(**self.options)
         conf_path = os.path.join(self.options['etc_prefix'], 'init.d', 'supervisord')
-        if not os.path.exists(os.path.dirname(conf_path)):
-            os.path.makedirs(os.path.dirname(conf_path))
+        make_dirs( os.path.dirname(conf_path) )
         
         with open(conf_path, 'wt') as fp:
             fp.write(text)
