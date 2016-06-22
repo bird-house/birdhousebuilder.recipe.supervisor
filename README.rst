@@ -2,7 +2,9 @@
 birdhousebuilder.recipe.supervisor
 **********************************
 
-.. contents::
+.. image:: https://travis-ci.org/bird-house/birdhousebuilder.recipe.supervisor.svg?branch=master
+   :target: https://travis-ci.org/bird-house/birdhousebuilder.recipe.supervisor
+   :alt: Travis Build
 
 Introduction
 ************
