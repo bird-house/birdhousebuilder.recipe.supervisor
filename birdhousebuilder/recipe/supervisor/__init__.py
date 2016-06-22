@@ -8,6 +8,7 @@ from mako.template import Template
 import logging
 
 import zc.recipe.deployment
+from zc.recipe.deployment import Configuration
 import birdhousebuilder.recipe.conda
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
@@ -38,13 +39,13 @@ class Recipe(object):
             buildout._raw[section_name] = options
             buildout[section_name] # cause it to be added to the working parts
             
-        deployment_name = self.name + "-supervisor-deployment"
-        self.deployment = zc.recipe.deployment.Install(buildout, deployment_name, {
+        self.deployment_name = self.name + "-supervisor-deployment"
+        self.deployment = zc.recipe.deployment.Install(buildout, self.deployment_name, {
             'name': "supervisor",
             'prefix': self.options['prefix'],
             'user': self.options['user'],
             'etc-user': self.options['user']})
-        add_section(deployment_name, self.deployment.options)
+        add_section(self.deployment_name, self.deployment.options)
         self.logger.debug('deployment %s', buildout.keys())
 
         self.options['user'] = self.deployment.options['user']
@@ -119,12 +120,10 @@ class Recipe(object):
         install supervisor main config file
         """
         text = templ_config.render(**self.options)
-
-        conf_path = os.path.join(self.options['etc-directory'], 'supervisord.conf')
-                
-        with open(conf_path, 'wt') as fp:
-            fp.write(text)
-        return [conf_path]
+        config = Configuration(self.buildout, 'supervisord.conf', {
+            'deployment': self.deployment_name,
+            'text': text})
+        return list(config.install())
         
     def install_program(self):
         """
