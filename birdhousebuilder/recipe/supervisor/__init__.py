@@ -32,12 +32,16 @@ class Recipe(object):
         self.logger = logging.getLogger(self.name)
 
         # deployment layout
-        self.deployment = zc.recipe.deployment.Install(buildout, "supervisor", {
-                                                'prefix': self.options['prefix'],
-                                                'user': self.options['user'],
-                                                'etc-user': self.options['user']})
+        deployment_name = self.name + "-supervisor-depolyment"
+        self.deployment = zc.recipe.deployment.Install(buildout, deployment_name, {
+            'name': "supervisor",
+            'prefix': self.options['prefix'],
+            'user': self.options['user'],
+            'etc-user': self.options['user']})
+        #self.buildout[deployment_name] = self.deployment
 
         self.options['user'] = self.deployment.options['user']
+        self.options['etc-user'] = self.deployment.options['etc-user']
         self.options['etc_prefix'] = self.deployment.options['etc-prefix']
         self.options['var_prefix'] = self.deployment.options['var-prefix']
         self.options['etc-directory'] = self.deployment.options['etc-directory']
