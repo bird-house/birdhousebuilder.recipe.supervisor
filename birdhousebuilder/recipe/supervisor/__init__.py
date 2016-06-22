@@ -44,7 +44,14 @@ class Recipe(object):
         self.prefix = self.options['prefix']
 
         # conda environment path
-        self.conda = birdhousebuilder.recipe.conda.Recipe(self.buildout, self.name, {'pkgs': 'supervisor'})
+        self.options['env'] = self.options.get('env', '')
+        self.options['pkgs'] = self.options.get('pkgs', 'supervisor')
+        self.options['channels'] = self.options.get('channels', 'defaults')
+        
+        self.conda = birdhousebuilder.recipe.conda.Recipe(self.buildout, self.name, {
+            'env': self.options['env'],
+            'pkgs': self.options['pkgs'],
+            'channels': self.options['channels']})
         self.env_path = self.conda.options['env-path']
         self.options['env-path'] = self.options['env_path'] = self.env_path
 
