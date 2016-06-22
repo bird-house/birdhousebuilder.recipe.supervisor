@@ -8,7 +8,7 @@ from mako.template import Template
 import logging
 
 import zc.recipe.deployment
-from birdhousebuilder.recipe import conda
+import birdhousebuilder.recipe.conda
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
@@ -31,28 +31,27 @@ class Recipe(object):
         
         self.logger = logging.getLogger(self.name)
 
-        self.logger.debug("options = %s", options.keys())
-
-        deployment = zc.recipe.deployment.Install(buildout, "supervisor", {
+        # deployment layout
+        self.deployment = zc.recipe.deployment.Install(buildout, "supervisor", {
                                                 'prefix': self.options['prefix'],
                                                 'user': self.options['user'],
                                                 'etc-user': self.options['user']})
-        deployment.install()
-
-        self.options['etc_prefix'] = deployment.options['etc-prefix']
-        self.options['var_prefix'] = deployment.options['var-prefix']
-        self.options['etc-directory'] = deployment.options['etc-directory']
-        self.options['log-directory'] = deployment.options['log-directory']
+    
+        self.options['etc_prefix'] = self.deployment.options['etc-prefix']
+        self.options['var_prefix'] = self.deployment.options['var-prefix']
+        self.options['etc-directory'] = self.deployment.options['etc-directory']
+        self.options['log-directory'] = self.deployment.options['log-directory']
         self.prefix = self.options['prefix']
 
-        self.logger.debug("deployment = %s, prefix = %s", deployment, self.prefix)
+        # conda environment path
+        self.conda = birdhousebuilder.recipe.conda.Recipe(self.buildout, self.name, {'pkgs': 'supervisor'})
+        self.env_path = self.conda.options['env-path']
+        self.options['env-path'] = self.options['env_path'] = self.env_path
 
-        self.env_path = conda.conda_env_path(buildout, options)
-        self.options['env_path'] = self.env_path
-        
         bin_path = os.path.join(self.env_path, 'bin')
         lib_path = os.path.join(self.env_path, 'lib')
         self.tmp_path = os.path.join(self.options['var_prefix'], 'tmp')
+        make_dirs(self.tmp_path)
 
         # buildout options used for supervisord.conf
         
@@ -88,21 +87,14 @@ class Recipe(object):
 
     def install(self, update=False):
         installed = []
-        installed += list(self.install_supervisor(update))
+        if not update:
+            installed += list(self.deployment.install())
+        installed += list(self.conda.install(update))
         installed += list(self.install_config())
         installed += list(self.install_program())
         installed += list(self.install_start_stop())
         return installed
-
-    def install_supervisor(self, update):
-        script = conda.Recipe(
-            self.buildout,
-            self.name,
-            {'pkgs': 'supervisor'})
-        # make dirs
-        make_dirs(self.tmp_path)
-        return script.install(update=update)
-        
+     
     def install_config(self):
         """
         install supervisor main config file
