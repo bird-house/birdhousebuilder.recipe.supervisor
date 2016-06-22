@@ -5,6 +5,8 @@ This module contains the tool of birdhousebuilder.recipe.supervisor
 from setuptools import find_packages
 from setuptools import setup
 
+name = 'birdhousebuilder.recipe.supervisor'
+
 version = '0.3.0'
 description = 'A Buildout recipe to install and configure supervisor for Anaconda.'
 long_description = (
@@ -13,18 +15,21 @@ long_description = (
     open('CHANGES.rst').read()
 )
 
-entry_point = 'birdhousebuilder.recipe.supervisor'
-entry_points = {"zc.buildout": [
-                            "default = %s:Recipe" % entry_point,
-                          ],
-                "zc.buildout.uninstall": [
-                            "default = %s:uninstall" % entry_point,
-                          ],
-                       }
+entry_points = '''
+[zc.buildout]
+default = %(name)s:Recipe
+[zc.buildout.uninstall]
+default = %(name)s:uninstall
+''' % globals()
 
-tests_require = ['zope.testing', 'zc.buildout', 'manuel']
+reqs = ['setuptools',
+        'zc.buildout',
+        'zc.recipe.deployment',
+        'Mako',
+        'birdhousebuilder.recipe.conda',]
+tests_reqs = ['zc.buildout', 'zope.testing']
 
-setup(name='birdhousebuilder.recipe.supervisor',
+setup(name=name,
       version=version,
       description=description,
       long_description=long_description,
@@ -38,22 +43,14 @@ setup(name='birdhousebuilder.recipe.supervisor',
       ],
       keywords='buildout recipe supervisor birdhouse conda anaconda',
       author='Birdhouse',
-      author_email='',
+      author_email='wps-dev at dkrz.de',
       url='https://github.com/bird-house/birdhousebuilder.recipe.supervisor.git',
-      license='BSD',
+      license='Apache License 2',
+      install_requires = reqs,
+      extras_require = dict(tests=tests_reqs),
+      entry_points=entry_points,
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['birdhousebuilder', 'birdhousebuilder.recipe'],
       include_package_data=True,
       zip_safe=False,
-      install_requires=['setuptools',
-                        'zc.buildout',
-                        # -*- Extra requirements: -*-
-                        'Mako',
-                        'birdhousebuilder.recipe.conda',
-                        'zc.recipe.deployment',
-                        ],
-      tests_require=tests_require,
-      extras_require=dict(tests=tests_require),
-      test_suite='birdhousebuilder.recipe.supervisor.tests.test_docs.test_suite',
-      entry_points=entry_points,
       )
