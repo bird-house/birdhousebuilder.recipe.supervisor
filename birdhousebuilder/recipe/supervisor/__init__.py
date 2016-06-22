@@ -32,13 +32,20 @@ class Recipe(object):
         self.logger = logging.getLogger(self.name)
 
         # deployment layout
-        deployment_name = self.name + "-supervisor-depolyment"
+        def add_section(section_name, options):
+            if section_name in buildout._raw:
+                raise KeyError("already in buildout", section_name)
+            buildout._raw[section_name] = options
+            buildout[section_name] # cause it to be added to the working parts
+            
+        deployment_name = self.name + "-supervisor-deployment"
         self.deployment = zc.recipe.deployment.Install(buildout, deployment_name, {
             'name': "supervisor",
             'prefix': self.options['prefix'],
             'user': self.options['user'],
             'etc-user': self.options['user']})
-        #self.buildout[deployment_name] = self.deployment
+        add_section(deployment_name, self.deployment.options)
+        self.logger.debug('deployment %s', buildout.keys())
 
         self.options['user'] = self.deployment.options['user']
         self.options['etc-user'] = self.deployment.options['etc-user']
