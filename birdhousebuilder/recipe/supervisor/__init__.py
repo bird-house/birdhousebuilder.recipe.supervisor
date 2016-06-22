@@ -36,7 +36,8 @@ class Recipe(object):
                                                 'prefix': self.options['prefix'],
                                                 'user': self.options['user'],
                                                 'etc-user': self.options['user']})
-    
+
+        self.options['user'] = self.deployment.options['user']
         self.options['etc_prefix'] = self.deployment.options['etc-prefix']
         self.options['var_prefix'] = self.deployment.options['var-prefix']
         self.options['etc-directory'] = self.deployment.options['etc-directory']
@@ -67,7 +68,7 @@ class Recipe(object):
         self.options['username'] = b_options.get('supervisor-username', '')
         self.options['password'] = b_options.get('supervisor-password', '')
         self.options['use_monitor'] = b_options.get('supervisor-use-monitor', 'true')
-        self.options['chown'] = b_options.get('supervisor-chown', '')
+        self.options['chown'] = self.options['user'] #b_options.get('supervisor-chown', '')
         self.options['loglevel'] = b_options.get('supervisor-loglevel', 'info')
 
         # options used for program config
