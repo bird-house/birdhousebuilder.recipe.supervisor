@@ -9,7 +9,6 @@ import logging
 
 import zc.recipe.deployment
 from zc.recipe.deployment import Configuration
-from zc.recipe.deployment import SharedConfig
 import birdhousebuilder.recipe.conda
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
@@ -48,7 +47,6 @@ class Recipe(object):
             'user': self.options['user'],
             'etc-user': self.options['user']})
         add_section(self.deployment_name, self.deployment.options)
-        self.logger.debug('deployment %s', buildout.keys())
 
         self.options['user'] = self.deployment.options['user']
         self.options['etc-user'] = self.deployment.options['etc-user']
