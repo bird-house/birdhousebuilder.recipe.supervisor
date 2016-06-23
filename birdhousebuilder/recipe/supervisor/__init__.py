@@ -116,7 +116,8 @@ class Recipe(object):
         installed += list(self.install_config())
         installed += list(self.install_program())
         installed += list(self.install_start_stop())
-        installed += list(self.install_supervisord_script())
+        installed += list(self.install_supervisord())
+        installed += list(self.install_supervisorctl())
         return installed
      
     def install_config(self):
@@ -150,13 +151,26 @@ class Recipe(object):
         os.chmod(configfile, 0o755)
         return [configfile]
 
-    def install_supervisord_script(self):
+    def install_supervisord(self):
         script = 'supervisord'
         source = os.path.join(self.options['etc-prefix'], 'init.d', script)
         target = os.path.join(self.options['bin-directory'], script)
         if not os.path.exists(target):
             os.symlink(source, target)
         return [target]
+
+    def install_supervisorctl(self):
+        conf_file = os.path.join(self.options['etc-directory'], 'supervisord.conf')
+        init_stmt = 'import sys; sys.argv[1:1] = ["-c", "{0}"]'.format(conf_file)
+        ctlscript = zc.recipe.egg.Egg(
+            self.buildout,
+            self.name, {
+                'eggs': 'supervisor',
+                'scripts': 'supervisorctl=supervisorctl',
+                'initialization': init_stmt,
+                'arguments': 'sys.argv[1:]',
+                })
+        return ctlscript.install()
 
     def update(self):
         return self.install(update=True)
