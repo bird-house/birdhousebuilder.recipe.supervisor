@@ -9,6 +9,7 @@ import logging
 
 import zc.recipe.deployment
 from zc.recipe.deployment import Configuration
+from zc.recipe.deployment import SharedConfig
 import birdhousebuilder.recipe.conda
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
@@ -36,8 +37,9 @@ class Recipe(object):
         def add_section(section_name, options):
             if section_name in buildout._raw:
                 raise KeyError("already in buildout", section_name)
-            buildout._raw[section_name] = options
-            buildout[section_name] # cause it to be added to the working parts
+            #buildout._raw[section_name] = options
+            buildout[section_name] = options
+            #buildout[section_name] # cause it to be added to the working parts
             
         self.deployment_name = self.name + "-supervisor-deployment"
         self.deployment = zc.recipe.deployment.Install(buildout, self.deployment_name, {
@@ -50,8 +52,8 @@ class Recipe(object):
 
         self.options['user'] = self.deployment.options['user']
         self.options['etc-user'] = self.deployment.options['etc-user']
-        self.options['etc_prefix'] = self.deployment.options['etc-prefix']
-        self.options['var_prefix'] = self.deployment.options['var-prefix']
+        self.options['etc-prefix'] = self.options['etc_prefix'] = self.deployment.options['etc-prefix']
+        self.options['var-prefix'] = self.options['var_prefix'] = self.deployment.options['var-prefix']
         self.options['etc-directory'] = self.deployment.options['etc-directory']
         self.options['log-directory'] = self.deployment.options['log-directory']
         self.prefix = self.options['prefix']
@@ -123,29 +125,26 @@ class Recipe(object):
         config = Configuration(self.buildout, 'supervisord.conf', {
             'deployment': self.deployment_name,
             'text': text})
-        return list(config.install())
+        return [config.install()]
         
     def install_program(self):
         """
         install supervisor program config file
         """
         text = templ_program.render(**self.options)
-        conf_path = os.path.join(self.options['etc-directory'], 'conf.d', self.program + '.conf')
-        make_dirs( os.path.dirname(conf_path) )
-        
-        with open(conf_path, 'wt') as fp:
-            fp.write(text)
-        return [conf_path]
+        config = Configuration(self.buildout, self.program + '.conf', {
+            'deployment': self.deployment_name,
+            'directory': os.path.join(self.options['etc-directory'], 'conf.d'),
+            'text': text})
+        return [config.install()]
 
     def install_start_stop(self):
         text = templ_start_stop.render(**self.options)
-        conf_path = os.path.join(self.options['etc_prefix'], 'init.d', 'supervisord')
-        make_dirs( os.path.dirname(conf_path) )
-        
-        with open(conf_path, 'wt') as fp:
-            fp.write(text)
-            os.chmod(conf_path, 0o755)
-        return [conf_path]
+        config = Configuration(self.buildout, 'supervisord', {
+            'deployment': self.deployment_name,
+            'directory': os.path.join(self.options['etc-prefix'], 'init.d'),
+            'text': text})
+        return [config.install()]
 
     def update(self):
         return self.install(update=True)
