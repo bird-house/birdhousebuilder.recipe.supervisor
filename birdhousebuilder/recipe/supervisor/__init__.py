@@ -142,7 +142,9 @@ class Recipe(object):
             'deployment': self.deployment_name,
             'directory': os.path.join(self.options['etc-prefix'], 'init.d'),
             'text': text})
-        return [config.install()]
+        configfile = config.install()
+        os.chmod(configfile, 0o755)
+        return [configfile]
 
     def update(self):
         return self.install(update=True)
