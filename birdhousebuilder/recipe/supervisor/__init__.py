@@ -56,6 +56,7 @@ class Recipe(object):
         self.options['var-prefix'] = self.options['var_prefix'] = self.deployment.options['var-prefix']
         self.options['etc-directory'] = self.deployment.options['etc-directory']
         self.options['log-directory'] = self.deployment.options['log-directory']
+        self.options['bin-directory'] = b_options['bin-directory']
         self.prefix = self.options['prefix']
 
         # conda environment path
@@ -115,6 +116,7 @@ class Recipe(object):
         installed += list(self.install_config())
         installed += list(self.install_program())
         installed += list(self.install_start_stop())
+        installed += list(self.install_supervisord_script())
         return installed
      
     def install_config(self):
@@ -147,6 +149,14 @@ class Recipe(object):
         configfile = config.install()
         os.chmod(configfile, 0o755)
         return [configfile]
+
+    def install_supervisord_script(self):
+        script = 'supervisord'
+        source = os.path.join(self.options['etc-prefix'], 'init.d', script)
+        target = os.path.join(self.options['bin-directory'], script)
+        if not os.path.exists(target):
+            os.symlink(source, target)
+        return [target]
 
     def update(self):
         return self.install(update=True)
