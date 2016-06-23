@@ -17,10 +17,10 @@ templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "superv
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
 templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
 
-def make_dirs(path, user):
+def make_dirs(name, user):
     etc_uid, etc_gid = pwd.getpwnam(user)[2:4]
     created = []
-    make_dir(path, etc_uid, etc_gid, 0o755, created)
+    make_dir(name, etc_uid, etc_gid, 0o755, created)
 
 class Recipe(object):
     """This recipe is used by zc.buildout.
@@ -39,9 +39,8 @@ class Recipe(object):
         def add_section(section_name, options):
             if section_name in buildout._raw:
                 raise KeyError("already in buildout", section_name)
-            #buildout._raw[section_name] = options
-            buildout[section_name] = options
-            #buildout[section_name] # cause it to be added to the working parts
+            buildout._raw[section_name] = options
+            buildout[section_name] # cause it to be added to the working parts
             
         self.deployment_name = self.name + "-supervisor-deployment"
         self.deployment = zc.recipe.deployment.Install(buildout, self.deployment_name, {
