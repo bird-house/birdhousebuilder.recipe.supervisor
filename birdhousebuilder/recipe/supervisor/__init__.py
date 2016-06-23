@@ -3,21 +3,24 @@
 """Recipe supervisor"""
 
 import os
+import pwd
 from mako.template import Template
 
 import logging
 
 import zc.recipe.deployment
 from zc.recipe.deployment import Configuration
+from zc.recipe.deployment import make_dir
 import birdhousebuilder.recipe.conda
 
 templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord.conf"))
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
 templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
 
-def make_dirs(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+def make_dirs(path, user):
+    etc_uid, etc_gid = pwd.getpwnam(user)[2:4]
+    created = []
+    make_dir(path, etc_uid, etc_gid, 0o755, created)
 
 class Recipe(object):
     """This recipe is used by zc.buildout.
@@ -70,8 +73,8 @@ class Recipe(object):
 
         bin_path = os.path.join(self.env_path, 'bin')
         lib_path = os.path.join(self.env_path, 'lib')
-        self.tmp_path = os.path.join(self.options['var_prefix'], 'tmp')
-        make_dirs(self.tmp_path)
+        self.tmp_path = os.path.join(self.options['var-prefix'], 'tmp')
+        make_dirs(self.tmp_path, self.options['user'])
 
         # buildout options used for supervisord.conf
         
