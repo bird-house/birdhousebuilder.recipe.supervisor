@@ -47,7 +47,7 @@ class Recipe(object):
             'name': "supervisor",
             'prefix': self.options['prefix'],
             'user': self.options['user'],
-            'etc-user': self.options['user']})
+            'etc-user': self.options['etc-user']})
         add_section(self.deployment_name, self.deployment.options)
 
         self.options['user'] = self.deployment.options['user']
