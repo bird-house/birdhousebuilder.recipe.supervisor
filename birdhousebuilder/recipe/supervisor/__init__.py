@@ -17,11 +17,6 @@ templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "superv
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
 templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
 
-def make_dirs(name, user):
-    etc_uid, etc_gid = pwd.getpwnam(user)[2:4]
-    created = []
-    make_dir(name, etc_uid, etc_gid, 0o755, created)
-
 class Recipe(object):
     """This recipe is used by zc.buildout.
     It installs supervisor as conda package and setups configuration."""
@@ -57,6 +52,7 @@ class Recipe(object):
         self.options['etc-directory'] = self.options['etc_directory'] = self.deployment.options['etc-directory']
         self.options['log-directory'] = self.options['log_directory'] = self.deployment.options['log-directory']
         self.options['run-directory'] = self.options['run_directory'] = self.deployment.options['run-directory']
+        self.options['cache-directory'] = self.options['cache_directory'] = self.deployment.options['cache-directory']
         self.options['bin-directory'] = b_options['bin-directory']
         self.prefix = self.options['prefix']
 
@@ -73,8 +69,6 @@ class Recipe(object):
 
         bin_path = os.path.join(self.options['conda-prefix'], 'bin')
         lib_path = os.path.join(self.options['conda-prefix'], 'lib')
-        self.tmp_path = os.path.join(self.options['var-prefix'], 'tmp')
-        make_dirs(self.tmp_path, self.options['user'])
 
         # buildout options used for supervisord.conf
         
@@ -106,7 +100,7 @@ class Recipe(object):
         self.options['stopsignal'] = self.options.get('stopsignal', 'TERM')
         self.options['environment'] = self.options.get(
             'environment',
-            'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s",PYTHON_EGG_CACHE="%s"' % (bin_path, lib_path, self.tmp_path))
+            'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s",PYTHON_EGG_CACHE="%s"' % (bin_path, lib_path, self.options['cache-directory']))
 
     def install(self, update=False):
         installed = []
