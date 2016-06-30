@@ -24,9 +24,9 @@ default = %(name)s:uninstall
 
 reqs = ['setuptools',
         'zc.buildout',
-        'zc.recipe.deployment',
+        'zc.recipe.deployment >=1.3.0',
         'Mako',
-        'birdhousebuilder.recipe.conda',]
+        'birdhousebuilder.recipe.conda >=0.3.1',]
 tests_reqs = ['zc.buildout', 'zope.testing']
 
 setup(name=name,
