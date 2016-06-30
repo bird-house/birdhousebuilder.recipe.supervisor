@@ -21,11 +21,11 @@ This recipe is used by the `Birdhouse`_ project.
 Usage
 *****
 
-The recipe requires that Anaconda is already installed. It assumes that the default Anaconda location is in your home directory ``~/anaconda``. Otherwise you need to set the ``ANACONDA_HOME`` environment variable or the Buildout option ``anaconda-home``.
+The recipe requires that Anaconda is already installed. You can use the buildout option ``anaconda-home`` to set the prefix for the anaconda installation. Otherwise the environment variable ``CONDA_PREFIX`` (variable is set when activating a conda environment) is used as conda prefix. 
 
-The recipe will install the ``supervisor`` package from a conda channel in a conda environment named ``birdhouse``. The location of the birdhouse environment is ``.conda/envs/birdhouse``. It deploys a supervisor configuration of a given service. The configuration will be deployed in the birdhouse enviroment ``~/.conda/envs/birdhouse/etc/supervisor/conf.d/myapp.conf``. Supervisor can be started with ``~/.conda/envs/birdhouse/etc/init.d/supervisord start``.
+The recipe will install the ``supervisor`` package from a conda channel in a conda environment defined by ``CONDA_PREFIX``. It deploys a supervisor configuration for a given service. The intallation folder is given by the ``prefix`` buildout option. The configuration will be deployed in the birdhouse enviroment ``${prefix}/etc/supervisor/conf.d/myapp.conf``. Supervisor can be started with ``${prefix}/etc/init.d/supervisord start``.
 
-The recipe depends on ``birdhousebuilder.recipe.conda``.
+The recipe depends on ``birdhousebuilder.recipe.conda`` and ``zc.recipe.deployment``.
 
 Supported options
 =================
@@ -33,16 +33,7 @@ Supported options
 This recipe supports the following options:
 
 **anaconda-home**
-   Buildout option with the root folder of the Anaconda installation. Default: ``$HOME/anaconda``.
-   The default location can also be set with the environment variable ``ANACONDA_HOME``. Example::
-
-     export ANACONDA_HOME=/opt/anaconda
-
-   Search priority is:
-
-   1. ``anaconda-home`` in ``buildout.cfg``
-   2. ``$ANACONDA_HOME``
-   3. ``$HOME/anaconda``
+   Buildout option pointing to the root folder of the Anaconda installation. Default: ``$HOME/anaconda``.
 
 Buildout options for ``supervisord``:
 
@@ -66,6 +57,15 @@ Buildout options for ``supervisord``:
 
 Buildout part options for the program section:
 
+**prefix**
+  Deployment option to set the prefix of the installation folder. Default: ``/``
+
+**user**
+  Deployment option to set the run user.
+
+**etc-user**
+  Deployment option to set the user of the ``/etc`` directory. Default: ``root``
+
 **program**
    The name of the supervisor service.
 
@@ -84,11 +84,11 @@ Buildout part options for the program section:
 **autorestart**
     Restart service automatically (optional). Default is ``false``.
 
-**stdout_logfile**
-    logfile for stdout (optional). Default is ``~/.conda/envs/birdhouse/var/log/supervisor/${program}.log``
+**stdout-logfile**
+    logfile for stdout (optional). Default is ``${prefix}/var/log/supervisor/${program}.log``
 
-**stderr_logfile**
-    logfile for stderr (optional). Default is ``~/.conda/envs/birdhouse/var/log/supervisor/${program}.log``
+**stderr-logfile**
+    logfile for stderr (optional). Default is ``${prefix}/var/log/supervisor/${program}.log``
 
 **startsecs**
     Seconds the service needs to be online before marked as ``started`` (optional). Default is 1.
@@ -121,6 +121,8 @@ The following example ``buildout.cfg`` installs a Supervisor configuration for `
 
   [myapp]
   recipe = birdhousebuilder.recipe.supervisor
+  prefix = /
+  user = www-data
   program = myapp
   command = ${buildout:bin-directory}/gunicorn -b unix:///tmp/myapp.socket myapp:app 
   directory = /tmp
