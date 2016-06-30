@@ -13,8 +13,8 @@
 # Default-Stop:      0 1 2 6
 # Description:       Provides supervisord service
 
-SUPERVISORD="${env_path}/bin/supervisord"
-SUPERVISORCTL="${env_path}/bin/supervisorctl"
+SUPERVISORD="${conda_prefix}/bin/supervisord"
+SUPERVISORCTL="${conda_prefix}/bin/supervisorctl"
 PIDFILE="${var_prefix}/run/supervisord.pid"
 CONFIGFILE="${etc_prefix}/supervisor/supervisord.conf"
 DAEMON_OPTS="--configuration $CONFIGFILE $DAEMON_OPTS"

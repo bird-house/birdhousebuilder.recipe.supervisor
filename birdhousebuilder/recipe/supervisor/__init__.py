@@ -68,11 +68,10 @@ class Recipe(object):
             'env': self.options['env'],
             'pkgs': self.options['pkgs'],
             'channels': self.options['channels']})
-        self.env_path = self.conda.options['env-path']
-        self.options['env-path'] = self.options['env_path'] = self.env_path
+        self.options['conda-prefix'] = self.options['conda_prefix'] = self.conda.options['prefix']
 
-        bin_path = os.path.join(self.env_path, 'bin')
-        lib_path = os.path.join(self.env_path, 'lib')
+        bin_path = os.path.join(self.options['conda-prefix'], 'bin')
+        lib_path = os.path.join(self.options['conda-prefix'], 'lib')
         self.tmp_path = os.path.join(self.options['var-prefix'], 'tmp')
         make_dirs(self.tmp_path, self.options['user'])
 
