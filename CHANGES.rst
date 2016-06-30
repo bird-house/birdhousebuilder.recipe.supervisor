@@ -1,13 +1,14 @@
 Changes
 *******
 
-0.3.0 (2016-06-22)
+0.3.0 (2016-06-30)
 ==================
 
 * updated buildout and doctests.
 * enabled travis.
 * replaced conda.makedirs by os.makedirs.
-* using zc.recipe.deployment
+* using zc.recipe.deployment.
+* using run-directory.
 
 0.2.8 (2015-12-22)
 ==================
