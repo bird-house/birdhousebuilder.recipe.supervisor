@@ -40,9 +40,9 @@ class Recipe(object):
         self.deployment_name = self.name + "-supervisor-deployment"
         self.deployment = zc.recipe.deployment.Install(buildout, self.deployment_name, {
             'name': "supervisor",
-            'prefix': self.options['prefix'],
-            'user': self.options['user'],
-            'etc-user': self.options['etc-user']})
+            'prefix': self.options.get('prefix'),
+            'user': self.options.get('user'),
+            'etc-user': self.options.get('etc-user')})
         add_section(self.deployment_name, self.deployment.options)
 
         self.options['user'] = self.deployment.options['user']
@@ -62,6 +62,7 @@ class Recipe(object):
         self.options['channels'] = self.options.get('channels', 'defaults')
         
         self.conda = birdhousebuilder.recipe.conda.Recipe(self.buildout, self.name, {
+            #'prefix': self.options.get('conda-prefix', ''),
             'env': self.options['env'],
             'pkgs': self.options['pkgs'],
             'channels': self.options['channels']})
@@ -77,7 +78,6 @@ class Recipe(object):
         self.options['username'] = b_options.get('supervisor-username', '')
         self.options['password'] = b_options.get('supervisor-password', '')
         self.options['use_monitor'] = b_options.get('supervisor-use-monitor', 'true')
-        self.options['chown'] = self.options['user'] #b_options.get('supervisor-chown', '')
         self.options['loglevel'] = b_options.get('supervisor-loglevel', 'info')
 
         # options used for program config
@@ -90,8 +90,8 @@ class Recipe(object):
         self.options['priority'] = self.options.get('priority', '999')
         self.options['autostart'] = self.options.get('autostart', 'true')
         self.options['autorestart'] = self.options.get('autorestart', 'false')
-        self.options['stdout_logfile'] = self.options.get('stdout_logfile', logfile)
-        self.options['stderr_logfile'] = self.options.get('stderr_logfile', logfile)
+        self.options['stdout-logfile'] = self.options['stdout_logfile'] = self.options.get('stdout-logfile', logfile)
+        self.options['stderr-logfile'] = self.options['stderr_logfile'] = self.options.get('stderr-logfile', logfile)
         self.options['startsecs'] = self.options.get('startsecs', '1')
         self.options['numprocs'] = self.options.get('numprocs', '1')
         self.options['stopwaitsecs'] = self.options.get('stopwaitsecs', '10')
