@@ -8,6 +8,7 @@ from mako.template import Template
 
 import logging
 
+from zc.buildout.buildout import bool_option
 import zc.recipe.deployment
 from zc.recipe.deployment import Configuration
 from zc.recipe.deployment import make_dir
@@ -77,7 +78,7 @@ class Recipe(object):
         self.options['port'] = b_options.get('supervisor-port', '9001')
         self.options['username'] = b_options.get('supervisor-username', '')
         self.options['password'] = b_options.get('supervisor-password', '')
-        self.options['use_monitor'] = b_options.get('supervisor-use-monitor', 'true')
+        self.options['use-monitor'] = self.options['use_monitor'] = bool_option(b_options, 'supervisor-use-monitor', True)
         self.options['loglevel'] = b_options.get('supervisor-loglevel', 'info')
 
         # options used for program config
@@ -85,7 +86,7 @@ class Recipe(object):
         self.program = self.options.get('program', name)
         logfile = os.path.join(self.options['log-directory'], self.program + ".log")
         # set default options
-        self.options['user'] = self.options.get('user', '')
+        self.options['skip-user'] = self.options['skip_user'] = bool_option(self.options, 'skip-user', False)
         self.options['directory'] =  self.options.get('directory', bin_path)
         self.options['priority'] = self.options.get('priority', '999')
         self.options['autostart'] = self.options.get('autostart', 'true')
