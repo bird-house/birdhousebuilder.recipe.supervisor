@@ -47,6 +47,7 @@ class Recipe(object):
         add_section(self.deployment_name, self.deployment.options)
 
         self.options['user'] = self.deployment.options['user']
+        self.options['home'] = os.path.expanduser('~'+self.options['user'])
         self.options['etc-user'] = self.deployment.options['etc-user']
         self.options['etc-prefix'] = self.options['etc_prefix'] = self.deployment.options['etc-prefix']
         self.options['var-prefix'] = self.options['var_prefix'] = self.deployment.options['var-prefix']
@@ -89,6 +90,7 @@ class Recipe(object):
         # set default options
         skip_user = bool_option(self.options, 'skip-user', False)
         self.options['skip-user'] = self.options['skip_user'] = 'true' if skip_user else 'false'
+        # TODO: fix usage of directory ... currently searches for wpsapp.py 
         self.options['directory'] =  self.options.get('directory', bin_path)
         self.options['priority'] = self.options.get('priority', '999')
         self.options['autostart'] = self.options.get('autostart', 'true')
@@ -103,7 +105,8 @@ class Recipe(object):
         self.options['stopsignal'] = self.options.get('stopsignal', 'TERM')
         self.options['environment'] = self.options.get(
             'environment',
-            'PATH="/bin:/usr/bin:%s",LD_LIBRARY_PATH="%s",PYTHON_EGG_CACHE="%s"' % (bin_path, lib_path, self.options['cache-directory']))
+            'USER={0},LOGNAME={0},HOME={1},PATH="/bin:/usr/bin:{2}",LD_LIBRARY_PATH="{3}",PYTHON_EGG_CACHE="{4}"'.format(
+                self.options['user'], self.options['home'], bin_path, lib_path, self.options['cache-directory']))
 
     def install(self, update=False):
         installed = []
