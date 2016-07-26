@@ -7,7 +7,7 @@ from setuptools import setup
 
 name = 'birdhousebuilder.recipe.supervisor'
 
-version = '0.3.3'
+version = '0.3.4'
 description = 'A Buildout recipe to install and configure supervisor for Anaconda.'
 long_description = (
     open('README.rst').read() + '\n' +
@@ -24,6 +24,7 @@ default = %(name)s:uninstall
 
 reqs = ['setuptools',
         'zc.buildout',
+        'zc.recipe.egg',
         'zc.recipe.deployment >=1.3.0',
         'Mako',
         'birdhousebuilder.recipe.conda >=0.3.1',]
