@@ -8,6 +8,7 @@ from mako.template import Template
 
 import logging
 
+import zc.recipe.egg
 from zc.buildout.buildout import bool_option
 import zc.recipe.deployment
 from zc.recipe.deployment import Configuration
