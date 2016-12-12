@@ -5,6 +5,7 @@ Changes
 ==================
 
 * pep8.
+* update MANIFEST.in: ignore temp files.
 
 0.3.4 (2016-07-26)
 ==================
