@@ -19,6 +19,7 @@ templ_config = Template(filename=os.path.join(os.path.dirname(__file__), "superv
 templ_program = Template(filename=os.path.join(os.path.dirname(__file__), "program.conf"))
 templ_start_stop = Template(filename=os.path.join(os.path.dirname(__file__), "supervisord"))
 
+
 class Recipe(object):
     """This recipe is used by zc.buildout.
     It installs supervisor as conda package and setups configuration."""
@@ -29,7 +30,7 @@ class Recipe(object):
 
         self.name = options.get('name', name)
         self.options['name'] = self.name
-        
+
         self.logger = logging.getLogger(self.name)
 
         # deployment layout
@@ -37,8 +38,8 @@ class Recipe(object):
             if section_name in buildout._raw:
                 raise KeyError("already in buildout", section_name)
             buildout._raw[section_name] = options
-            buildout[section_name] # cause it to be added to the working parts
-            
+            buildout[section_name]  # cause it to be added to the working parts
+
         self.deployment_name = self.name + "-supervisor-deployment"
         self.deployment = zc.recipe.deployment.Install(buildout, self.deployment_name, {
             'name': "supervisor",
@@ -48,7 +49,7 @@ class Recipe(object):
         add_section(self.deployment_name, self.deployment.options)
 
         self.options['user'] = self.deployment.options['user']
-        self.options['home'] = os.path.expanduser('~'+self.options['user'])
+        self.options['home'] = os.path.expanduser('~' + self.options['user'])
         self.options['etc-user'] = self.deployment.options['etc-user']
         self.options['etc-prefix'] = self.options['etc_prefix'] = self.deployment.options['etc-prefix']
         self.options['var-prefix'] = self.options['var_prefix'] = self.deployment.options['var-prefix']
@@ -63,7 +64,7 @@ class Recipe(object):
         self.options['env'] = self.options.get('env', '')
         self.options['pkgs'] = self.options.get('pkgs', 'supervisor')
         self.options['channels'] = self.options.get('channels', 'defaults')
-        
+
         self.conda = birdhousebuilder.recipe.conda.Recipe(self.buildout, self.name, {
             #'prefix': self.options.get('conda-prefix', ''),
             'env': self.options['env'],
@@ -75,7 +76,7 @@ class Recipe(object):
         lib_path = os.path.join(self.options['conda-prefix'], 'lib')
 
         # buildout options used for supervisord.conf
-        
+
         self.options['host'] = b_options.get('supervisor-host', '127.0.0.1')
         self.options['port'] = b_options.get('supervisor-port', '9001')
         self.options['username'] = b_options.get('supervisor-username', '')
@@ -85,14 +86,14 @@ class Recipe(object):
         self.options['loglevel'] = b_options.get('supervisor-loglevel', 'info')
 
         # options used for program config
-        
+
         self.program = self.options.get('program', name)
         logfile = os.path.join(self.options['log-directory'], self.program + ".log")
         # set default options
         skip_user = bool_option(self.options, 'skip-user', False)
         self.options['skip-user'] = self.options['skip_user'] = 'true' if skip_user else 'false'
-        # TODO: fix usage of directory ... currently searches for wpsapp.py 
-        self.options['directory'] =  self.options.get('directory', bin_path)
+        # TODO: fix usage of directory ... currently searches for wpsapp.py
+        self.options['directory'] = self.options.get('directory', bin_path)
         self.options['priority'] = self.options.get('priority', '999')
         self.options['autostart'] = self.options.get('autostart', 'true')
         self.options['autorestart'] = self.options.get('autorestart', 'false')
@@ -104,10 +105,12 @@ class Recipe(object):
         self.options['stopasgroup'] = self.options.get('stopasgroup', 'false')
         self.options['killasgroup'] = self.options.get('killasgroup', 'true')
         self.options['stopsignal'] = self.options.get('stopsignal', 'TERM')
+        env_templ = \
+            'USER={0},LOGNAME={0},HOME={1},PATH="/bin:/usr/bin:{2}",LD_LIBRARY_PATH="{3}",PYTHON_EGG_CACHE="{4}"'
         self.options['environment'] = self.options.get(
             'environment',
-            'USER={0},LOGNAME={0},HOME={1},PATH="/bin:/usr/bin:{2}",LD_LIBRARY_PATH="{3}",PYTHON_EGG_CACHE="{4}"'.format(
-                self.options['user'], self.options['home'], bin_path, lib_path, self.options['cache-directory']))
+            env_templ.format(self.options['user'], self.options['home'],
+                             bin_path, lib_path, self.options['cache-directory']))
 
     def install(self, update=False):
         installed = []
@@ -120,7 +123,7 @@ class Recipe(object):
         installed += list(self.install_supervisord())
         installed += list(self.install_supervisorctl())
         return installed
-     
+
     def install_config(self):
         """
         install supervisor main config file
@@ -130,7 +133,7 @@ class Recipe(object):
             'deployment': self.deployment_name,
             'text': text})
         return [config.install()]
-        
+
     def install_program(self):
         """
         install supervisor program config file
@@ -170,12 +173,12 @@ class Recipe(object):
                 'scripts': 'supervisorctl=supervisorctl',
                 'initialization': init_stmt,
                 'arguments': 'sys.argv[1:]',
-                })
+            })
         return ctlscript.install()
 
     def update(self):
         return self.install(update=True)
 
+
 def uninstall(name, options):
     pass
-
