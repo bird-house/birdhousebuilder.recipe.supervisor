@@ -7,7 +7,7 @@ from setuptools import setup
 
 name = 'birdhousebuilder.recipe.supervisor'
 
-version = '0.3.5'
+version = '0.3.6'
 description = 'A Buildout recipe to install and configure supervisor for Anaconda.'
 long_description = (
     open('README.rst').read() + '\n' +
@@ -27,7 +27,7 @@ reqs = ['setuptools',
         'zc.recipe.egg',
         'zc.recipe.deployment >=1.3.0',
         'Mako',
-        'birdhousebuilder.recipe.conda >=0.3.1',]
+        'birdhousebuilder.recipe.conda >=0.3.1', ]
 tests_reqs = ['zc.buildout', 'zope.testing']
 
 setup(name=name,
@@ -47,8 +47,8 @@ setup(name=name,
       author_email='wps-dev at dkrz.de',
       url='https://github.com/bird-house/birdhousebuilder.recipe.supervisor.git',
       license='Apache License 2',
-      install_requires = reqs,
-      extras_require = dict(tests=tests_reqs),
+      install_requires=reqs,
+      extras_require=dict(tests=tests_reqs),
       entry_points=entry_points,
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['birdhousebuilder', 'birdhousebuilder.recipe'],
