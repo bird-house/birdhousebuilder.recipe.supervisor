@@ -106,11 +106,11 @@ class Recipe(object):
         self.options['killasgroup'] = self.options.get('killasgroup', 'true')
         self.options['stopsignal'] = self.options.get('stopsignal', 'TERM')
         env_templ = \
-            'USER={0},LOGNAME={0},HOME={1},PATH="/bin:/usr/bin:{2}",LD_LIBRARY_PATH="{3}",PYTHON_EGG_CACHE="{4}"'
+            'USER={0},LOGNAME={0},HOME={1},PATH="/bin:/usr/bin:{2}",PYTHON_EGG_CACHE="{3}"'
         self.options['environment'] = self.options.get(
             'environment',
             env_templ.format(self.options['user'], self.options['home'],
-                             bin_path, lib_path, self.options['cache-directory']))
+                             bin_path, self.options['cache-directory']))
 
     def install(self, update=False):
         installed = []
