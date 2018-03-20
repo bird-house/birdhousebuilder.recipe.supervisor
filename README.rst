@@ -6,11 +6,19 @@ birdhousebuilder.recipe.supervisor
    :target: https://travis-ci.org/bird-house/birdhousebuilder.recipe.supervisor
    :alt: Travis Build
 
+.. image:: https://img.shields.io/github/license/bird-house/birdhousebuilder.recipe.supervisor.svg
+ :target: https://github.com/bird-house/birdhousebuilder.recipe.supervisor/blob/master/LICENSE.txt
+ :alt: GitHub license
+
+.. image:: https://badges.gitter.im/bird-house/birdhouse.svg
+ :target: https://gitter.im/bird-house/birdhouse?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+ :alt: Join the chat at https://gitter.im/bird-house/birdhouse
+
 Introduction
 ************
 
 ``birdhousebuilder.recipe.supervisor`` is a `Buildout`_ recipe to configure `Supervisor`_ services with `Anaconda`_.
-This recipe is used by the `Birdhouse`_ project. 
+This recipe is used by the `Birdhouse`_ project.
 
 .. _`Buildout`: http://buildout.org/
 .. _`Anaconda`: http://continuum.io/
@@ -21,7 +29,7 @@ This recipe is used by the `Birdhouse`_ project.
 Usage
 *****
 
-The recipe requires that Anaconda is already installed. You can use the buildout option ``anaconda-home`` to set the prefix for the anaconda installation. Otherwise the environment variable ``CONDA_PREFIX`` (variable is set when activating a conda environment) is used as conda prefix. 
+The recipe requires that Anaconda is already installed. You can use the buildout option ``anaconda-home`` to set the prefix for the anaconda installation. Otherwise the environment variable ``CONDA_PREFIX`` (variable is set when activating a conda environment) is used as conda prefix.
 
 The recipe will install the ``supervisor`` package from a conda channel in a conda environment defined by ``CONDA_PREFIX``. It deploys a supervisor configuration for a given service. The intallation folder is given by the ``prefix`` buildout option. The configuration will be deployed in the birdhouse enviroment ``${prefix}/etc/supervisor/conf.d/myapp.conf``. Supervisor can be started with ``${prefix}/etc/init.d/supervisord start``.
 
@@ -101,7 +109,7 @@ Buildout part options for the program section:
 
 .. note::
 
-   The ``DAEMON_OPTS`` environment variable can be used to set additional start parameters for supervisord. 
+   The ``DAEMON_OPTS`` environment variable can be used to set additional start parameters for supervisord.
    For example ``DAEMON_OPTS=-n`` to start supervisord in foreground.
 
 For supervisor configuration details see the `documentation <http://supervisord.org/configuration.html>`_.
@@ -124,9 +132,5 @@ The following example ``buildout.cfg`` installs a Supervisor configuration for `
   prefix = /
   user = www-data
   program = myapp
-  command = ${buildout:bin-directory}/gunicorn -b unix:///tmp/myapp.socket myapp:app 
+  command = ${buildout:bin-directory}/gunicorn -b unix:///tmp/myapp.socket myapp:app
   directory = /tmp
-
-
-
-

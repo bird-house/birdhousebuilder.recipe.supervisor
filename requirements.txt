@@ -1,0 +1,6 @@
+setuptools
+zc.buildout
+zc.recipe.egg
+zc.recipe.deployment>=1.3.0
+Mako
+birdhousebuilder.recipe.conda>=0.4.0
