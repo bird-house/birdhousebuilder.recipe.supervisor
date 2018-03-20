@@ -22,13 +22,8 @@ default = %(name)s:Recipe
 default = %(name)s:uninstall
 ''' % globals()
 
-reqs = ['setuptools',
-        'zc.buildout',
-        'zc.recipe.egg',
-        'zc.recipe.deployment >=1.3.0',
-        'Mako',
-        'birdhousebuilder.recipe.conda >=0.3.1', ]
-tests_reqs = ['zc.buildout', 'zope.testing']
+reqs = [line.strip() for line in open('requirements.txt')]
+tests_reqs = [line.strip() for line in open('requirements-dev.txt')]
 
 setup(name=name,
       version=version,
@@ -44,7 +39,7 @@ setup(name=name,
       ],
       keywords='buildout recipe supervisor birdhouse conda anaconda',
       author='Birdhouse',
-      author_email='wps-dev at dkrz.de',
+      author_email='wps-dev@dkrz.de',
       url='https://github.com/bird-house/birdhousebuilder.recipe.supervisor.git',
       license='Apache License 2',
       install_requires=reqs,
