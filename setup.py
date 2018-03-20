@@ -7,7 +7,7 @@ from setuptools import setup
 
 name = 'birdhousebuilder.recipe.supervisor'
 
-version = '0.3.6'
+version = '0.4.0'
 description = 'A Buildout recipe to install and configure supervisor for Anaconda.'
 long_description = (
     open('README.rst').read() + '\n' +
